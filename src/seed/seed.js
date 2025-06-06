@@ -18,7 +18,7 @@ export const runSeed = async () => {
         name: "Joel Chávez",
         username: "testuser",
         email: "test@equilibrium.local",
-        passwordHash:
+        password:
           "$argon2id$v=19$m=4096,t=3,p=1$eW91clNhbHQ$YmFzZVNuaXBwZXRlcg==",
         role: "USER",
         status: "ACTIVE",
