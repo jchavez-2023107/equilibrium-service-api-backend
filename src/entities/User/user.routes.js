@@ -2,9 +2,16 @@
 import { Router } from "express";
 import { check } from "express-validator";
 
-import { createUser } from "./user.controller.js";
+import { 
+    createUser, 
+    getUsers, 
+    getUserById 
+
+} from "./user.controller.js";
 import { existUsername, existEmail } from "../../utils/db.validators.js";
 import { validateFields } from "../../middlewares/validate-fields.js";
+import { validateJWT, validateRoles } from "../../middlewares/validate.jwt.js";
+
 
 const router = Router();
 
@@ -33,6 +40,33 @@ router.post(
     validateFields, // middleware que devuelve errores de express-validator
   ],
   createUser
+);
+
+/**
+ * GET /api/v1/users
+ * Obtener lista de usuarios (solo ADMIN)
+ */
+router.get(
+  "/",
+  [
+    validateJWT,                    // Verificar que el token sea válido
+    validateRoles("ADMIN")         // Solo ADMIN puede obtener todos los usuarios
+  ],
+  getUsers
+);
+
+/**
+ * GET /api/v1/users/:id
+ * Obtener detalle de un usuario por su ID (ADMIN o el propio usuario)
+ */
+router.get(
+  "/:id",
+  [
+    validateJWT,                    // Verificar que el token sea válido
+    check("id", "Invalid User ID").isMongoId(),
+    validateFields
+  ],
+  getUserById
 );
 
 export default router;

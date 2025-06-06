@@ -43,6 +43,61 @@ export const createUser = async (req, res, next) => {
   }
 };
 
+/**
+ * getUsers: devuelve todos los usuarios (sin contraseña).
+ * Solo los usuarios con rol ADMIN pueden acceder.
+ */
+export const getUsers = async (req, res, next) => {
+  try {
+    // Obtenemos todos los usuarios excluyendo el campo "password"
+    const users = await User.find().select("-password");
+    return res.json({ success: true, users });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * getUserById: devuelve un solo usuario por su :id (sin contraseña).
+ * Permite al propio usuario ver su perfil o a un ADMIN ver cualquiera.
+ */
+export const getUserById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const requester = req.user; // { id, username, role, email }
+
+    // Si no es ADMIN y no coincide con el id solicitado, denegar
+    if (requester.role !== "ADMIN" && requester.id !== id) {
+      return res
+        .status(403)
+        .json({ success: false, message: "Acceso denegado" });
+    }
+
+    // Buscar el usuario y excluir password
+    const user = await User.findById(id).select("-password");
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Usuario no encontrado" });
+    }
+
+    return res.json({ success: true, user });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * updateUser: (se implementará pronto)
+ */
+
+/**
+ * deleteUser: (se implementará más adelante)
+ */
+
+
+
+
 
 /* // GET /users/test
 export const testUser = async (req, res, next) => {
