@@ -152,12 +152,35 @@ export const updateUser = async (req, res, next) => {
 };
 
 /**
- * deleteUser: (se implementará más adelante)
+ * deleteUser: soft delete (status="INACTIVE").
+ * - ADMIN puede inactivar cualquiera; USER solo su propia cuenta.
  */
+export const deleteUser = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const requester = req.user;
 
+    // 1) Sólo ADMIN o el mismo usuario pueden inactivar
+    if (requester.role !== "ADMIN" && requester.id !== id) {
+      return res.status(403).json({ success: false, message: "Acceso denegado" });
+    }
 
+    // 2) Actualizar status a INACTIVE
+    const disabled = await User.findByIdAndUpdate(
+      id,
+      { status: "INACTIVE" },
+      { new: true }
+    ).select("-password");
 
+    if (!disabled) {
+      return res.status(404).json({ success: false, message: "Usuario no encontrado" });
+    }
 
+    res.json({ success: true, user: disabled });
+  } catch (err) {
+    next(err);
+  }
+};
 
 /* // GET /users/test
 export const testUser = async (req, res, next) => {

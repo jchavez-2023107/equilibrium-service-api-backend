@@ -91,7 +91,19 @@ router.put(
   updateUser
 );
 
-
+/**
+ * DELETE /api/v1/users/:id
+ * Soft-delete (status=INACTIVE) — ADMIN o propio usuario.
+ */
+router.delete(
+  "/:id",
+  [
+    validateJWT,
+    check("id", "Invalid User ID").isMongoId(),
+    validateFields
+  ],
+  deleteUser
+);
 
 
 export default router;
