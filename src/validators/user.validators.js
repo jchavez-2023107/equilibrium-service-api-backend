@@ -100,3 +100,16 @@ export const updateUserValidators = [
 
   // Al final, dejamos que el middleware de campos chequee todo
 ];
+
+export const registerVolunteerValidators = [
+  // Básicos (igual que createUser)
+  ...createUserValidators,
+  // Campos extra de volunteerData que quieras exigir:
+  check("volunteerData.needs")
+    .isArray({ min:1 })
+    .withMessage("Debe indicar al menos un tipo de necesidad (needs)"),
+  check("volunteerData.schedules")
+    .optional()
+    .isArray().withMessage("schedules debe ser un arreglo"),
+  // Al final se usará validateFields
+];

@@ -182,6 +182,85 @@ export const deleteUser = async (req, res, next) => {
   }
 };
 
+/**
+ * registerVolunteer: crea un voluntario con status PENDING.
+ * Campos en req.body:
+ *  - username, email, password, profile (subdocumento),
+ *  - volunteerData (available, schedules, needs).
+ */
+export const registerVolunteer = async (req, res, next) => {
+  try {
+    const { username, email, password, profile, volunteerData } = req.body;
+
+    // 1) Verificar unicidad
+    await existUsername(username, { uid: null });
+    await existEmail(email, { uid: null });
+
+    // 2) Hash de la contraseña
+    const hashed = await encrypt(password);
+
+    // 3) Nuevo usuario con rol VOLUNTEER y status PENDING
+    const vol = new User({
+      username,
+      email,
+      password: hashed,
+      role: "VOLUNTEER",
+      status: "PENDING",
+      profile: profile || {},
+      volunteerData: volunteerData || {}
+    });
+
+    await vol.save();
+
+    const out = vol.toObject();
+    delete out.password;
+
+    res.status(201).json({ success: true, volunteer: out });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * approveVolunteer: cambia status de PENDING → ACTIVE.
+ * Sólo ADMIN puede hacerlo.
+ */
+export const approveVolunteer = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const updated = await User.findByIdAndUpdate(
+      id,
+      { status: "ACTIVE" },
+      { new: true }
+    ).select("-password");
+
+    if (!updated) {
+      return res.status(404).json({ success: false, message: "Usuario no encontrado" });
+    }
+    res.json({ success: true, volunteer: updated });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * listVolunteers: obtiene todos los VOLUNTEER con status ACTIVE.
+ * Permite filtrar por query ?need=EMERGENCY|APPOINTMENT|CHAT
+ */
+export const listVolunteers = async (req, res, next) => {
+  try {
+    const { need } = req.query;
+    const filter = { role: "VOLUNTEER", status: "ACTIVE" };
+    if (need) filter["volunteerData.needs"] = need;
+
+    const vols = await User.find(filter).select("-password");
+    res.json({ success: true, volunteers: vols });
+  } catch (err) {
+    next(err);
+  }
+};
+
+
 /* // GET /users/test
 export const testUser = async (req, res, next) => {
   try {

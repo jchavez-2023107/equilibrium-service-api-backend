@@ -2,105 +2,89 @@ import mongoose from "mongoose";
 
 const { Schema, model, Types } = mongoose;
 
+// Subdocumento para calificaciones dadas a voluntarios
 const RatingSchema = new Schema(
   {
-    userId: {
-      type: Types.ObjectId,
-      ref: "User",
-      required: true
-    },
-    rating: {
-      type: Number,
-      min: 1,
-      max: 5
-    },
-    comment: {
-      type: String
-    },
-    date: {
-      type: Date,
-      default: Date.now
-    }
+    userId:    { type: Types.ObjectId, ref: "User", required: true },
+    rating:    { type: Number, min: 1, max: 5 },
+    comment:   { type: String },
+    date:      { type: Date, default: Date.now }
   },
-  { _id: false } // El subdocumento no necesita su propio _id
+  { _id: false, versionKey: false }
 );
 
+// Esquema para datos específicos de voluntarios
 const VolunteerDataSchema = new Schema(
   {
-    available: {
-      type: Boolean,
-      default: false
-    },
+    available: { type: Boolean, default: false },
     schedules: [
       {
-        day: { type: String },   // ej: "Lunes", "Martes", etc.
-        from: { type: String },  // ej: "08:00"
-        to: { type: String }     // ej: "17:00"
+        day:  { type: String },
+        from: { type: String },
+        to:   { type: String }
       }
     ],
+    needs: {
+      type:    [String],
+      enum:    ["EMERGENCY","APPOINTMENT","CHAT"],
+      default: []
+    },
     ratings: [RatingSchema]
   },
-  { _id: false }
+  { _id: false, versionKey: false }
 );
 
+// Esquema para información de perfil de usuario
 const ProfileSchema = new Schema(
   {
-    displayName: {
-      type: String,
-      default: ""
-    },
-    birthDate: {
-      type: Date
-    },
-    bio: {
-      type: String
-    },
-    contactNumber: {
-      type: String
-    },
-    especialidad: {
-      type: String
-    }
+    displayName:   { type: String, default: "" },
+    birthDate:     { type: Date },
+    bio:           { type: String },
+    contactNumber: { type: String },
+    especialidad:  { type: String }
   },
-  { _id: false }
+  { _id: false, versionKey: false }
 );
 
+// Esquema principal de Usuario
 const UserSchema = new Schema(
   {
     username: {
-      type: String,
+      type:     String,
       required: true,
-      unique: true,
-      trim: true
+      unique:   true,
+      trim:     true
     },
     email: {
-      type: String,
+      type:     String,
       required: true,
-      unique: true,
-      lowercase: true,
-      trim: true
+      unique:   true,
+      lowercase:true,
+      trim:     true
     },
-    // Guardamos la contraseña como hash; select: false hace que no venga en las queries por defecto ya que no sería seguro.
     password: {
-      type: String,
+      type:     String,
       required: true,
-      select: false
+      select:   false
     },
     role: {
-      type: String,
-      enum: ["ADMIN", "VOLUNTEER", "USER"],
+      type:    String,
+      enum:    ["ADMIN","VOLUNTEER","USER"],
       default: "USER"
     },
     status: {
-      type: String,
-      enum: ["ACTIVE", "INACTIVE"],
+      type:    String,
+      enum:    ["PENDING","ACTIVE","INACTIVE"],
       default: "ACTIVE"
     },
-    profile: ProfileSchema,
+    profile:       ProfileSchema,
     volunteerData: VolunteerDataSchema
   },
-  { timestamps: true }
+  {
+    timestamps:  true,
+    versionKey:  false
+  }
 );
 
-// Exportación por defecto para que `import User from ".../user.model.js"` funcione bonito
+// Exportar el modelo para uso en controladores y rutas
 export default model("User", UserSchema);
