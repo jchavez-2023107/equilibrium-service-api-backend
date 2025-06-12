@@ -1,8 +1,8 @@
 {
   "info": {
-    "name": "Equilibrium API",
+    "name": "Equilibrium API - Updated",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_postman_id": "equilibrium-api-collection"
+    "_postman_id": "equilibrium-api-updated"
   },
   "item": [
     {
@@ -166,17 +166,17 @@
                 },
                 {
                   "key": "role",
-                  "value": "VOLUNTEER",
+                  "value": "USER",
                   "type": "text"
                 },
                 {
                   "key": "profile[displayName]",
-                  "value": "Voluntario",
+                  "value": "Usuario Ejemplo",
                   "type": "text"
                 },
                 {
                   "key": "profile[bio]",
-                  "value": "Soy voluntario",
+                  "value": "Biograf\u00eda ejemplo",
                   "type": "text"
                 }
               ]
@@ -190,6 +190,65 @@
                 "api",
                 "v1",
                 "users"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Register Volunteer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "username",
+                  "value": "voluntario1",
+                  "type": "text"
+                },
+                {
+                  "key": "email",
+                  "value": "voluntario@equilibrium",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "VolPass123",
+                  "type": "text"
+                },
+                {
+                  "key": "profile[displayName]",
+                  "value": "Voluntario Uno",
+                  "type": "text"
+                },
+                {
+                  "key": "volunteerData[needs][]",
+                  "value": "CHAT",
+                  "type": "text"
+                },
+                {
+                  "key": "volunteerData[needs][]",
+                  "value": "EMERGENCY",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/volunteers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "volunteers"
               ]
             }
           }
@@ -214,6 +273,63 @@
                 "api",
                 "v1",
                 "users"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Volunteers",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{tokenAdmin}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/volunteers?need=CHAT",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "volunteers"
+              ],
+              "query": [
+                {
+                  "key": "need",
+                  "value": "CHAT"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Approve Volunteer",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{tokenAdmin}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users/{{userId}}/approve",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "{{userId}}",
+                "approve"
               ]
             }
           }
