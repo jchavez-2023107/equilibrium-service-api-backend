@@ -69,6 +69,31 @@ router.get(
   getUserById
 );
 
+/**
+ * PUT /api/v1/users/:id
+ * Editar usuario — ADMIN o el propio usuario.
+ */
+router.put(
+  "/:id",
+  [
+    validateJWT,
+    check("id", "Invalid User ID").isMongoId(),
+    // Validaciones opcionales si vienen:
+    check("email", "Must be a valid email").optional().isEmail(),
+    check("role", "Invalid role")
+      .optional()
+      .isIn(["ADMIN", "VOLUNTEER", "USER"]),
+    check("status", "Invalid status")
+      .optional()
+      .isIn(["ACTIVE", "INACTIVE"]),
+    validateFields
+  ],
+  updateUser
+);
+
+
+
+
 export default router;
 
 /* import { testUser } from "./user.controller.js";

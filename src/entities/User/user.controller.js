@@ -88,8 +88,68 @@ export const getUserById = async (req, res, next) => {
 };
 
 /**
- * updateUser: (se implementará pronto)
+ * updateUser: actualiza un usuario.
+ * - ADMIN puede cambiar cualquier campo (username, email, role, status, profile).
+ * - El propio usuario (USER) solo puede cambiar su perfil.
  */
+export const updateUser = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const requester = req.user; // { id, username, role, email }
+    const body = req.body;
+
+    // Determinar qué campos están permitidos según rol
+    let updates = {};
+
+    if (requester.role === "ADMIN") {
+      // ADMIN: puede actualizar username, email, role, status y profile
+      const { username, email, role, status, profile } = body;
+
+      if (username) {
+        await existUsername(username, { uid: id });
+        updates.username = username;
+      }
+      if (email) {
+        await existEmail(email, { uid: id });
+        updates.email = email;
+      }
+      if (role) updates.role = role;
+      if (status) updates.status = status;
+      if (profile) updates.profile = profile;
+
+    } else if (requester.id === id) {
+      // Propio usuario: solo profile
+      if (body.profile) {
+        updates.profile = body.profile;
+      } else {
+        return res
+          .status(403)
+          .json({ success: false, message: "Solo puedes modificar tu perfil." });
+      }
+    } else {
+      return res
+        .status(403)
+        .json({ success: false, message: "Acceso denegado" });
+    }
+
+    // Ejecutar actualización
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      updates,
+      { new: true, runValidators: true }
+    ).select("-password");
+
+    if (!updatedUser) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Usuario no encontrado" });
+    }
+
+    return res.json({ success: true, user: updatedUser });
+  } catch (err) {
+    next(err);
+  }
+};
 
 /**
  * deleteUser: (se implementará más adelante)
