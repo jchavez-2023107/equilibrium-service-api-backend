@@ -98,12 +98,11 @@ export const updateUser = async (req, res, next) => {
     const requester = req.user; // { id, username, role, email }
     const body = req.body;
 
-    // Determinar qué campos están permitidos según rol
     let updates = {};
 
     if (requester.role === "ADMIN") {
-      // ADMIN: puede actualizar username, email, role, status y profile
-      const { username, email, role, status, profile } = body;
+      // ADMIN: puede actualizar username, email, role, status, profile y volunteerData
+      const { username, email, role, status, profile, volunteerData } = body;
 
       if (username) {
         await existUsername(username, { uid: id });
@@ -116,23 +115,34 @@ export const updateUser = async (req, res, next) => {
       if (role) updates.role = role;
       if (status) updates.status = status;
       if (profile) updates.profile = profile;
+      if (volunteerData) updates.volunteerData = volunteerData;
 
     } else if (requester.id === id) {
-      // Propio usuario: solo profile
+      // PROPIO USUARIO (USER o VOLUNTEER): puede actualizar profile y volunteerData
+      let didUpdate = false;
+
       if (body.profile) {
         updates.profile = body.profile;
-      } else {
+        didUpdate = true;
+      }
+
+      if (body.volunteerData) {
+        updates.volunteerData = body.volunteerData;
+        didUpdate = true;
+      }
+
+      if (!didUpdate) {
         return res
           .status(403)
-          .json({ success: false, message: "Solo puedes modificar tu perfil." });
+          .json({ success: false, message: "Nada que modificar en tu perfil." });
       }
+
     } else {
       return res
         .status(403)
         .json({ success: false, message: "Acceso denegado" });
     }
 
-    // Ejecutar actualización
     const updatedUser = await User.findByIdAndUpdate(
       id,
       updates,
