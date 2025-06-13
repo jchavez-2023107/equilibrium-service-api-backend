@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { registerUser, loginUser } from "./auth.controller.js";
-import { validateJWT } from "../middlewares/validate.jwt.js";
+import { validateJWT, validateRoles } from "../middlewares/validate.jwt.js";
 
 const router = Router();
 
@@ -8,8 +8,12 @@ const router = Router();
  * 📌 Rutas de autenticación (montaremos bajo /api/v1/auth)
  */
 
-// POST  /api/v1/auth/register   → Registrar nuevo usuario
-router.post("/register", registerUser);
+// 🚫 POST /api/v1/auth/register → Registrar nuevo usuario (SOLO ADMIN)
+router.post(
+  "/register",
+  [ validateJWT, validateRoles("ADMIN") ],
+  registerUser
+);
 
 // POST  /api/v1/auth/login      → Iniciar sesión y recibir token
 router.post("/login", loginUser);

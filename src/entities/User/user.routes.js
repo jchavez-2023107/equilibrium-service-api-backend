@@ -1,76 +1,113 @@
-// src/entities/User/user.routes.js
 import { Router } from "express";
-import { check } from "express-validator";
-
-import { 
-    createUser, 
-    getUsers, 
-    getUserById 
-
-} from "./user.controller.js";
-import { existUsername, existEmail } from "../../utils/db.validators.js";
 import { validateFields } from "../../middlewares/validate-fields.js";
 import { validateJWT, validateRoles } from "../../middlewares/validate.jwt.js";
 
+import {
+  createUser,
+  getUsers,
+  getUserById,
+  updateUser,
+  deleteUser,
+  registerVolunteer,
+  approveVolunteer,
+  listVolunteers
+} from "./user.controller.js";
+
+import {
+  createUserValidators,
+  registerVolunteerValidators,
+  idParamValidator,
+  updateUserValidators
+} from "../../validators/user.validators.js";
 
 const router = Router();
 
 /**
  * @route   POST /api/v1/users
- * @desc    Crear un nuevo usuario
- * @body    { username, email, password, [role], [profile] }
- * @access  Público (o ADMIN según la siguiente asignación; ahorita lo dejamos público)
+ * @desc    Crear un nuevo usuario (rol USER por defecto)
+ * @access  Público
  */
 router.post(
   "/",
-  [
-    check("username", "Username is required").not().isEmpty(),
-    check("email", "Must be a valid email").isEmail(),
-    check("password", "Password is required").not().isEmpty(),
-
-    // Validación personalizada de unicidad:
-    check("username").custom(async (value) => {
-      // { uid: null } porque es creación
-      await existUsername(value, { uid: null });
-    }),
-    check("email").custom(async (value) => {
-      await existEmail(value, { uid: null });
-    }),
-
-    validateFields, // middleware que devuelve errores de express-validator
-  ],
+  [...createUserValidators, validateFields],
   createUser
 );
 
 /**
- * GET /api/v1/users
- * Obtener lista de usuarios (solo ADMIN)
+ * @route   POST /api/v1/users/volunteers
+ * @desc    Registrar un voluntario con estado PENDING
+ * @access  Público
+ */
+router.post(
+  "/volunteers",
+  [...registerVolunteerValidators, validateFields],
+  registerVolunteer
+);
+
+/**
+ * @route   GET /api/v1/users
+ * @desc    Obtener lista de todos los usuarios
+ * @access  ADMIN
  */
 router.get(
   "/",
-  [
-    validateJWT,                    // Verificar que el token sea válido
-    validateRoles("ADMIN")         // Solo ADMIN puede obtener todos los usuarios
-  ],
+  [validateJWT, validateRoles("ADMIN")],
   getUsers
 );
 
 /**
- * GET /api/v1/users/:id
- * Obtener detalle de un usuario por su ID (ADMIN o el propio usuario)
+ * @route   GET /api/v1/users/volunteers
+ * @desc    Listar voluntarios activos, filtrar con ?need=EMERGENCY|APPOINTMENT|CHAT
+ * @access  ADMIN, VOLUNTEER
+ */
+router.get(
+  "/volunteers",
+  [validateJWT, validateRoles("ADMIN", "VOLUNTEER")],
+  listVolunteers
+);
+
+/**
+ * @route   PUT /api/v1/users/:id/approve
+ * @desc    Aprobar voluntario (status PENDING → ACTIVE)
+ * @access  ADMIN
+ */
+router.put(
+  "/:id/approve",
+  [validateJWT, validateRoles("ADMIN"), ...idParamValidator, validateFields],
+  approveVolunteer
+);
+
+/**
+ * @route   GET /api/v1/users/:id
+ * @desc    Obtener detalle de un usuario por ID (ADMIN o propio usuario)
+ * @access  ADMIN, USER
  */
 router.get(
   "/:id",
-  [
-    validateJWT,                    // Verificar que el token sea válido
-    check("id", "Invalid User ID").isMongoId(),
-    validateFields
-  ],
+  [validateJWT, ...idParamValidator, validateFields],
   getUserById
 );
 
-export default router;
+/**
+ * @route   PUT /api/v1/users/:id
+ * @desc    Editar usuario: ADMIN puede cambiar cualquier campo; USER solo profile
+ * @access  ADMIN, USER
+ */
+router.put(
+  "/:id",
+  [validateJWT, ...updateUserValidators, validateFields],
+  updateUser
+);
 
-/* import { testUser } from "./user.controller.js";
-// RUTA DE PRUEBA: GET /api/v1/users/test
-router.get("/test", testUser); */
+/**
+ * @route   DELETE /api/v1/users/:id
+ * @desc    Soft-delete de usuario (status → INACTIVE), ADMIN o propio usuario
+ * @access  ADMIN, USER
+ */
+router.delete(
+  "/:id",
+  [validateJWT, ...idParamValidator, validateFields],
+  deleteUser
+);
+
+export default router;
