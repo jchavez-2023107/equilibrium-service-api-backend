@@ -1,4 +1,3 @@
-// src/seed/seed.js
 import mongoose from "mongoose";
 import User from "../entities/User/user.model.js";
 import { encrypt } from "../utils/encrypt.js";
@@ -64,18 +63,20 @@ export const runSeed = async () => {
         console.log(`✅ ADMIN creado: ${adminData.username}`);
       }
 
-      // Función para crear Voluntarios y Usuarios
+      // Función para crear Voluntarios y Usuarios sin puntos en username y emails concatenados
       const seedByRole = async (names, role, status) => {
         for (const fullName of names) {
           const [first, last] = fullName.split(' ');
-          const username = `${first.toLowerCase()}.${last.toLowerCase()}`;
-          // Contraseña fija por rol
-          const plainPwd = role === 'VOLUNTEER' ? 'volunteer' : 'user';
+          const uname = `${first.toLowerCase()}${last.toLowerCase()}`;  // sin punto
+          const emailLocal = `${first.toLowerCase()}${last.toLowerCase()}`;  // pegados
+
+          // Contraseña fija de 5 caracteres según rol
+          const plainPwd = role === 'VOLUNTEER' ? 'volun' : 'user1';
           const hashed = await encrypt(plainPwd);
 
           const profile = {
             displayName: fullName,
-            displayUsername: username,
+            displayUsername: uname,
             birthDate: new Date(role === 'VOLUNTEER' ? '1995-06-15' : '2000-06-15'),
             bio: `Hola, soy ${fullName}`,
             contactNumber: role === 'VOLUNTEER' ? '3295-0447' : '5895-5677',
@@ -93,25 +94,25 @@ export const runSeed = async () => {
                 hasVolunteered: false,
                 motivation: "Quiero ayudar a la comunidad",
                 availability: "Lunes a Viernes 9:00-17:00",
-                linkedIn: `https://www.linkedin.com/in/${username}`,
+                linkedIn: `https://www.linkedin.com/in/${uname}`,
                 contactNumber: "3295-0447"
               }
             : undefined;
 
           await User.create({
-            username,
-            email: `${username}@equilibrium.local`,
+            username: uname,
+            email: `${emailLocal}@equilibrium.local`,
             password: hashed,
             role,
             status,
             profile,
             ...(role === 'VOLUNTEER' && { volunteerData })
           });
-          console.log(`✅ ${role} creado: ${username} (pwd: ${plainPwd})`);
+          console.log(`✅ ${role} creado: ${uname} (pwd: ${plainPwd})`);
         }
       };
 
-      // Ejecutar seeds
+      // Ejecutar seeds con status ACTIVE
       await seedByRole(volunteerNames, 'VOLUNTEER', 'ACTIVE');
       await seedByRole(userNames, 'USER', 'ACTIVE');
     } else {
