@@ -29,7 +29,23 @@ const VolunteerDataSchema = new Schema(
       enum:    ["EMERGENCY","APPOINTMENT","CHAT"],
       default: []
     },
-    ratings: [RatingSchema]
+    ratings: [RatingSchema],
+    university:     { type: String, default: "" },          // Universidad actual o egresado
+    graduateTerm:   { type: String, default: "" },          // Semestre/año de graduación
+    hasVolunteered: { type: Boolean, default: false },      // ¿Ha trabajado como voluntario?
+    motivation:     { type: String, default: "" },          // Motivación para ser voluntario
+    availability:   { type: String, default: "" },          // Disponibilidad horaria
+    linkedIn:       {
+      type: String,
+      default: "",
+      match: [/^https?:\/\/(www\.)?linkedin\.com\/.*$/, 'URL de LinkedIn inválida']
+    },
+    contactNumber:  {
+      type: String,
+      maxlength: 12,
+      match: [/^[0-9+\- ]{7,12}$/, 'Número de contacto inválido'],
+      default: ""
+    }
   },
   { _id: false, versionKey: false }
 );
@@ -37,11 +53,17 @@ const VolunteerDataSchema = new Schema(
 // Esquema para información de perfil de usuario
 const ProfileSchema = new Schema(
   {
-    displayName:   { type: String, default: "" },
-    birthDate:     { type: Date },
-    bio:           { type: String },
-    contactNumber: { type: String },
-    especialidad:  { type: String }
+    displayName:     { type: String, default: "" },
+    displayUsername: { type: String, default: "" },  // Apodo en la plataforma
+    birthDate:       { type: Date },
+    bio:             { type: String, default: "" },  // Biografía vacía por defecto
+    contactNumber:   {                            
+      type: String,
+      maxlength: 12,
+      match: [/^[0-9+\- ]{7,12}$/, 'Número de contacto inválido'],
+      default: ""
+    },
+    especialidad:    { type: String, default: "" }
   },
   { _id: false, versionKey: false }
 );
