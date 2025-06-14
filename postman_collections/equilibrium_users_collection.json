@@ -1,0 +1,901 @@
+{
+	"info": {
+		"_postman_id": "4ae5380f-87f4-44f4-82de-b6871dc71b4b",
+		"name": "Equilibrium Final API Collection",
+		"description": "Colección final para endpoints de Auth y Users en Equilibrium, lista para consumir sin modificaciones.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "37956992"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "userlogin",
+									"value": "admin",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "admin",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register User (Admin)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "manuel.rivera",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "manuel.rivera@example.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "user",
+									"type": "text"
+								},
+								{
+									"key": "passwordConfirm",
+									"value": "user",
+									"type": "text"
+								},
+								{
+									"key": "profile.displayName",
+									"value": "Manuel Rivera",
+									"type": "text"
+								},
+								{
+									"key": "profile.displayUsername",
+									"value": "manuel.rivera",
+									"type": "text"
+								},
+								{
+									"key": "profile.birthDate",
+									"value": "1995-07-20",
+									"type": "text"
+								},
+								{
+									"key": "profile.bio",
+									"value": "Usuario administrador de prueba",
+									"type": "text"
+								},
+								{
+									"key": "profile.contactNumber",
+									"value": "4123-4567",
+									"type": "text"
+								},
+								{
+									"key": "profile.especialidad",
+									"value": "Usuario",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Test JWT",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/auth/test",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"test"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Create User (Public)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "sevilla_gomez",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "sevilla_gomez@equilibrium.local",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "sevilla",
+									"type": "text"
+								},
+								{
+									"key": "passwordConfirm",
+									"value": "sevilla",
+									"type": "text"
+								},
+								{
+									"key": "profile[displayName]",
+									"value": "Sevilla Gómez",
+									"type": "text"
+								},
+								{
+									"key": "profile[displayUsername]",
+									"value": "sevilla_gomez",
+									"type": "text"
+								},
+								{
+									"key": "profile[birthDate]",
+									"value": "1998-11-05",
+									"type": "text"
+								},
+								{
+									"key": "profile[bio]",
+									"value": "Apasionada de la programación",
+									"type": "text"
+								},
+								{
+									"key": "profile[contactNumber]",
+									"value": "4234-8765",
+									"type": "text"
+								},
+								{
+									"key": "profile[especialidad]",
+									"value": "Programación",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/users",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register Volunteer (Public)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "eliza_mendez",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "eliza_mendez@example.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "volunteer",
+									"type": "text"
+								},
+								{
+									"key": "passwordConfirm",
+									"value": "volunteer",
+									"type": "text"
+								},
+								{
+									"key": "profile[displayName]",
+									"value": "Eliza Méndez",
+									"type": "text"
+								},
+								{
+									"key": "profile[displayUsername]",
+									"value": "eliza.mendez",
+									"type": "text"
+								},
+								{
+									"key": "profile[birthDate]",
+									"value": "1992-02-14",
+									"type": "text"
+								},
+								{
+									"key": "profile[bio]",
+									"value": "Voluntaria entusiasta",
+									"type": "text"
+								},
+								{
+									"key": "profile[contactNumber]",
+									"value": "5123-6789",
+									"type": "text"
+								},
+								{
+									"key": "profile[especialidad]",
+									"value": "Voluntaria",
+									"type": "text"
+								},
+								{
+									"key": "volunteerData[needs][]",
+									"value": "CHAT",
+									"type": "text"
+								},
+								{
+									"key": "volunteerData[schedules][0][day]",
+									"value": "Martes",
+									"type": "text"
+								},
+								{
+									"key": "volunteerData[schedules][0][from]",
+									"value": "10:00",
+									"type": "text"
+								},
+								{
+									"key": "volunteerData[schedules][0][to]",
+									"value": "14:00",
+									"type": "text"
+								},
+								{
+									"key": "volunteerData[university]",
+									"value": "USAC",
+									"type": "text"
+								},
+								{
+									"key": "volunteerData[graduateTerm]",
+									"value": "2021-12",
+									"type": "text"
+								},
+								{
+									"key": "volunteerData[hasVolunteered]",
+									"value": "true",
+									"type": "text"
+								},
+								{
+									"key": "volunteerData[motivation]",
+									"value": "Quiero apoyar proyectos sociales",
+									"type": "text"
+								},
+								{
+									"key": "volunteerData[availability]",
+									"value": "Miércoles 09:00-12:00",
+									"type": "text"
+								},
+								{
+									"key": "volunteerData[linkedIn]",
+									"value": "https://www.linkedin.com/in/eliza.mendez",
+									"type": "text"
+								},
+								{
+									"key": "volunteerData[contactNumber]",
+									"value": "5123-6789",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/users/volunteers",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"volunteers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/users",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Volunteers",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/users/volunteers",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"volunteers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Approve Volunteer",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/users/{{volunteerId}}/approve",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"{{volunteerId}}",
+								"approve"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/users/{{userId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"{{userId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "profile[bio]",
+									"value": "Actualización de perfil via Postman",
+									"type": "text"
+								},
+								{
+									"key": "profile[contactNumber]",
+									"value": "4234-9876",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/users/{{userId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"{{userId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User (Soft)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/users/{{userId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"{{userId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "UsersErrors",
+			"item": [
+				{
+					"name": "Create User - Short password & Missing passwordConfirm",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "apodo",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "apodo@equilibrium.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "user",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/users",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create User - Invalid username & InvalidEmail",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "joel.nopunto¡",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "joel@nogmail",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "joeluser",
+									"type": "text"
+								},
+								{
+									"key": "passwordConfirm",
+									"value": "joeluser",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/users",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create User - Password Mismatch",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "alejandro",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "alejandrochavez@equilibrium.local",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "alejandro",
+									"type": "text"
+								},
+								{
+									"key": "passwordConfirm",
+									"value": "noalejandro",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/users",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register Volunteer - Missing needs and wrong birthdate",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "vol",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "voluntario@example.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "volunteer",
+									"type": "text"
+								},
+								{
+									"key": "passwordConfirm",
+									"value": "volunteer",
+									"type": "text"
+								},
+								{
+									"key": "profile[displayName]",
+									"value": "Vol Error",
+									"type": "text"
+								},
+								{
+									"key": "profile[displayUsername]",
+									"value": "vol.error",
+									"type": "text"
+								},
+								{
+									"key": "profile[birthDate]",
+									"value": "2990-01-01",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/users/volunteers",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"volunteers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register Volunteer - Invalid LinkedIn Copy",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "email",
+									"value": "voluntario2@equilibrium.com",
+									"type": "text"
+								},
+								{
+									"key": "username",
+									"value": "voluntario2",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "volunteer",
+									"type": "text"
+								},
+								{
+									"key": "passwordConfirm",
+									"value": "volunteer",
+									"type": "text"
+								},
+								{
+									"key": "profile[displayName]",
+									"value": "Error Vol2",
+									"type": "text"
+								},
+								{
+									"key": "profile[displayUsername]",
+									"value": "error2.vol",
+									"type": "text"
+								},
+								{
+									"key": "profile[birthDate]",
+									"value": "1995-07-07",
+									"type": "text"
+								},
+								{
+									"key": "profile[contactNumber]",
+									"value": "4123-4567",
+									"type": "text"
+								},
+								{
+									"key": "volunteerData[needs][]",
+									"value": "EMERGENCY",
+									"type": "text"
+								},
+								{
+									"key": "volunteerData[linkedIn]",
+									"value": "htt://linkedin.com/bad",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/users/volunteers",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"volunteers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register Volunteer - Invalid LinkedIn Copy",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "email",
+									"value": "voluntario2@equilibrium.com",
+									"type": "text"
+								},
+								{
+									"key": "username",
+									"value": "voluntario2",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "volunteer",
+									"type": "text"
+								},
+								{
+									"key": "passwordConfirm",
+									"value": "volunteer",
+									"type": "text"
+								},
+								{
+									"key": "profile[displayName]",
+									"value": "Error Vol2",
+									"type": "text"
+								},
+								{
+									"key": "profile[displayUsername]",
+									"value": "error2.vol",
+									"type": "text"
+								},
+								{
+									"key": "profile[birthDate]",
+									"value": "1995-07-07",
+									"type": "text"
+								},
+								{
+									"key": "profile[contactNumber]",
+									"value": "4123-4567",
+									"type": "text"
+								},
+								{
+									"key": "volunteerData[needs][]",
+									"value": "EMERGENCY",
+									"type": "text"
+								},
+								{
+									"key": "volunteerData[linkedIn]",
+									"value": "htt://linkedin.com/bad",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/users/volunteers",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"volunteers"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:2636/api/v1"
+		},
+		{
+			"key": "token",
+			"value": ""
+		}
+	]
+}
