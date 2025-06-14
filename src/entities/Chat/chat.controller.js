@@ -1,88 +1,192 @@
-import Chat from './chat.model.js'
-import User from '../User/user.model.js'
+import Chat from "./chat.model.js";
+import User from "../User/user.model.js";
+import { v4 as uuidv4 } from "uuid";
 
-export const createChat = async (req, res) => {
-    try {
+/**
+ * createChat: Inicia un nuevo chat entre un usuario y un voluntario.
+ */
+export const createChat = async (req, res, next) => {
+  try {
+    const { userId, volunteerId } = req.body;
 
-        const { emisor, receptor, mensaje } = req.body
+    const [user, volunteer] = await Promise.all([
+      User.findById(userId),
+      User.findById(volunteerId)
+    ]);
 
-        if (!emisor || !receptor || !mensaje) {
-            return res.status(400).send(
-                { 
-                    message: "Faltan campos obligatorios" 
-                }
-            )
-        }
-
-        const emisorExist = await User.findById(emisor)
-        const receptorExist = await User.findById(receptor)
-
-        if (!emisorExist || !receptorExist) {
-            return res.status(404).send(
-                { 
-                    message: "Usuario emisor o receptor no encontrado" 
-                }
-            )
-        }
-
-        const nuevoChat = new Chat(req.body)
-        const chatGuardado = await nuevoChat.save()
-        return res.status(201).send(chatGuardado)
-    } catch (err) {
-        console.error(err)
-        return res.status(500).send(
-            { 
-                message: "Error al enviar mensaje", 
-                error: err.message 
-            }
-        )
+    if (!user || !volunteer) {
+      return res.status(404).json({ success: false, message: "Usuario(s) no encontrado(s)" });
     }
-}
 
-export const getChats = async (req, res) => {
-    try {
-        const chats = await Chat.find()
-            .populate('emisor', 'nombre correo')
-            .populate('receptor', 'nombre correo')
-            .lean()
-
-        return res.status(200).send(chats)
-    } catch (err) {
-        console.error(err)
-        return res.status(500).send(
-            { 
-                message: "Error al obtener chats", 
-                error: err.message 
-            }
-        )
+    if (user.role !== "USER" || volunteer.role !== "VOLUNTEER") {
+      return res.status(400).json({ success: false, message: "Roles incorrectos para iniciar chat" });
     }
-}
 
-export const getChatBetweenUsers = async (req, res) => {
-    try {
-        const { user1, user2 } = req.params
+    const existing = await Chat.findOne({
+      userId: userId,
+      volunteerId: volunteerId,
+      status: "ACTIVE"
+    });
 
-        const chats = await Chat.find(
-            {
-                $or: [
-                    { emisor: user1, receptor: user2 },
-                    { emisor: user2, receptor: user1 }
-                ]
-            }
-        )
-        .sort({ fecha: 1 })
-        .populate('emisor', 'nombre')
-        .populate('receptor', 'nombre')
-        .lean()
-
-        return res.status(200).send(chats)
-    } catch (err) {
-        console.error(err)
-        return res.status(500).send(
-            { 
-                message: "Error al obtener chat", 
-                error: err.message 
-            }
-        )
+    if (existing) {
+      return res.status(409).json({ success: false, message: "Ya existe un chat activo entre estos usuarios" });
     }
-}
+
+    const newChat = new Chat({
+      sessionId: uuidv4(),
+      userId,
+      volunteerId,
+      status: "ACTIVE"
+    });
+
+    await newChat.save();
+
+    await newChat.populate([
+      { path: "userId", select: "_id username" },
+      { path: "volunteerId", select: "_id username" }
+    ]);
+
+    res.status(201).json({ success: true, chat: newChat });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * addMessageToChat: Agrega un mensaje al chat.
+ */
+export const addMessageToChat = async (req, res, next) => {
+  try {
+    const chat = req.chat;
+    const senderId = req.user.id;
+    const { text, isEmergency = false } = req.body;
+
+    // Verifica si el usuario está autorizado para enviar mensajes
+    if (
+      chat.userId.toString() !== senderId &&
+      chat.volunteerId.toString() !== senderId
+    ) {
+      return res.status(403).json({
+        success: false,
+        message: "No estás autorizado para enviar mensajes en este chat"
+      });
+    }
+
+    if (chat.status === "ENDED") {
+      return res.status(400).json({
+        success: false,
+        message: "El chat está cerrado"
+      });
+    }
+
+    chat.messages.push({
+      senderId,
+      text,
+      isEmergency,
+      timestamp: new Date()
+    });
+
+    await chat.save();
+
+    await chat.populate([
+      { path: "userId", select: "_id username" },
+      { path: "volunteerId", select: "_id username" }
+    ]);
+
+    res.status(200).json({ success: true, chat });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * getChats: Lista los chats del usuario autenticado.
+ */
+export const getChats = async (req, res, next) => {
+  try {
+    const { id, role } = req.user;
+
+    const filter = {
+      status: "ACTIVE",
+      ...(role === "VOLUNTEER"
+        ? { volunteerId: id }
+        : role === "ADMIN"
+          ? {}
+          : { userId: id })
+    };
+
+    const chats = await Chat.find(filter)
+      .populate("userId", "_id username")
+      .populate("volunteerId", "_id username");
+
+    res.json({ success: true, chats });
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+/**
+ * getChatById: Devuelve un chat si el usuario participa en él.
+ */
+export const getChatById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const requester = req.user;
+
+    const chat = await Chat.findById(id)
+      .populate("userId", "_id username")
+      .populate("volunteerId", "_id username");
+
+    if (!chat) {
+      return res.status(404).json({ success: false, message: "Chat no encontrado" });
+    }
+
+    if (
+      chat.userId.toString() !== requester.id &&
+      chat.volunteerId.toString() !== requester.id
+    ) {
+      return res.status(403).json({ success: false, message: "No tienes acceso a este chat" });
+    }
+
+    res.json({ success: true, chat });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * closeChat: Cierra el chat (status → ENDED).
+ */
+export const closeChat = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const requester = req.user;
+
+    const chat = await Chat.findById(id);
+
+    if (!chat) {
+      return res.status(404).json({ success: false, message: "Chat no encontrado" });
+    }
+
+    if (
+      chat.userId.toString() !== requester.id &&
+      chat.volunteerId.toString() !== requester.id &&
+      requester.role !== "ADMIN"
+    ) {
+      return res.status(403).json({ success: false, message: "No autorizado para cerrar este chat" });
+    }
+
+    chat.status = "ENDED";
+    await chat.save();
+
+    await chat.populate([
+      { path: "userId", select: "_id username" },
+      { path: "volunteerId", select: "_id username" }
+    ]);
+
+    res.json({ success: true, chat });
+  } catch (err) {
+    next(err);
+  }
+};
