@@ -24,38 +24,52 @@ const MessageSchema = new Schema(
         systemNote: {
             type: String,
             default: ""
+        }, 
+        isSystem: {
+            type: Boolean,
+            default: false
         }
     },
     { _id: false }
     );
 
-    const ChatSchema = new Schema(
+const ChatSchema = new Schema(
     {
         sessionId: {
-            type: String,
-            required: true,
-            unique: true
+        type: String,
+        required: true,
+        unique: true
         },
         userId: {
-            type: Types.ObjectId,
-            ref: "User",
-            required: true
+        type: Types.ObjectId,
+        ref: "User",
+        required: true
         },
         volunteerId: {
-            type: Types.ObjectId,
-            ref: "User"
+        type: Types.ObjectId,
+        ref: "User"
         },
         startedAt: {
-            type: Date,
-            default: Date.now
+        type: Date,
+        default: Date.now
         },
         endedAt: {
-            type: Date
+        type: Date
         },
         status: {
-            type: String,
-            enum: ["ACTIVE", "ENDED", "PENDING"],
-            default: "PENDING"
+        type: String,
+        enum: ["ACTIVE", "ENDED", "PENDING"],
+        default: "PENDING"
+        },
+        type: {
+        type: String,
+        enum: ["NORMAL", "EMERGENCY"],
+        default: "NORMAL"
+        },
+        emergencyTakenBy: {
+        type: Types.ObjectId,
+        ref: "User",
+        default: null
         },
         messages: [MessageSchema]
     },

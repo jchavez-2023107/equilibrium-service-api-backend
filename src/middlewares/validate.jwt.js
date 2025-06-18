@@ -15,7 +15,12 @@ export const validateJWT = async (req, res, next) => {
     }
 
     // Verifica el token; jwt.verify lanzará si no es válido
-    const decoded = jwt.verify(authorization, secretKey);
+    const token = authorization.split(' ')[1]; // Separa "Bearer <token>"
+    if (!token) {
+      return res.status(401).json({ message: "Token format invalid" });
+    }
+
+    const decoded = jwt.verify(token, secretKey);
 
     // decoded = { uid, username, role, email, iat } (sin exp porque no lo pusimos)
     const validateUser = await findUser(decoded.uid);

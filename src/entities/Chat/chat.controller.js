@@ -1,6 +1,7 @@
 import Chat from "./chat.model.js";
 import User from "../User/user.model.js";
 import { v4 as uuidv4 } from "uuid";
+import { createEmergencyAlertNotification, notifyEmergencyTaken } from "../Notification/notification.controller.js";
 
 /**
  * createChat: Inicia un nuevo chat entre un usuario y un voluntario.
@@ -64,7 +65,8 @@ export const addMessageToChat = async (req, res, next) => {
     // Verifica si el usuario está autorizado para enviar mensajes
     if (
       chat.userId.toString() !== senderId &&
-      chat.volunteerId.toString() !== senderId
+      chat.volunteerId?.toString() !== senderId &&
+      chat.emergencyTakenBy?.toString() !== senderId
     ) {
       return res.status(403).json({
         success: false,
@@ -125,7 +127,6 @@ export const getChats = async (req, res, next) => {
   }
 };
 
-
 /**
  * getChatById: Devuelve un chat si el usuario participa en él.
  */
@@ -144,7 +145,8 @@ export const getChatById = async (req, res, next) => {
 
     if (
       chat.userId.toString() !== requester.id &&
-      chat.volunteerId.toString() !== requester.id
+      chat.volunteerId?.toString() !== requester.id &&
+      chat.emergencyTakenBy?.toString() !== requester.id
     ) {
       return res.status(403).json({ success: false, message: "No tienes acceso a este chat" });
     }
@@ -171,7 +173,7 @@ export const closeChat = async (req, res, next) => {
 
     if (
       chat.userId.toString() !== requester.id &&
-      chat.volunteerId.toString() !== requester.id &&
+      chat.volunteerId?.toString() !== requester.id &&
       requester.role !== "ADMIN"
     ) {
       return res.status(403).json({ success: false, message: "No autorizado para cerrar este chat" });
@@ -186,6 +188,74 @@ export const closeChat = async (req, res, next) => {
     ]);
 
     res.json({ success: true, chat });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * triggerEmergency: agrega mensaje automático de emergencia y notifica voluntarios.
+ */
+export const triggerEmergency = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+
+    // Buscar chat abierto existente
+    const chat = await Chat.findOne({ userId, status: "ACTIVE" });
+
+    if (!chat) {
+      return res.status(400).json({ success: false, message: "No tienes un chat activo para reportar la emergencia." });
+    }
+
+    chat.messages.push({
+      senderId: req.user.id, // o null
+      text: "Emergencia reportada por el usuario",
+      isEmergency: true,
+      isSystem: true,
+      timestamp: new Date()
+    }); 
+
+    await chat.save();
+
+    await createEmergencyAlertNotification(chat, userId);
+
+    res.status(201).json({ success: true, chat });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * acceptEmergency: permite a un voluntario tomar control de la emergencia.
+ */
+export const acceptEmergency = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const volunteerId = req.user.id;
+
+    const chat = await Chat.findById(id);
+
+    if (!chat) {
+      return res.status(404).json({ success: false, message: "Chat no encontrado" });
+    }
+
+    const hasEmergency = chat.messages.some(m => m.isEmergency);
+
+    if (!hasEmergency) {
+      return res.status(400).json({ success: false, message: "Este chat no tiene emergencia activa" });
+    }
+
+    if (chat.emergencyTakenBy) {
+      return res.status(400).json({ success: false, message: "Emergencia ya fue tomada" });
+    }
+
+    chat.emergencyTakenBy = volunteerId;
+    chat.volunteerId = volunteerId;
+    await chat.save();
+
+    await notifyEmergencyTaken(chat._id, volunteerId);
+
+    res.status(200).json({ success: true, message: "Emergencia aceptada", chat });
   } catch (err) {
     next(err);
   }

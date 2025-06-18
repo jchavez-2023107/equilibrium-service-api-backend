@@ -1,88 +1,109 @@
 import { Router } from "express";
-import { validateJWT } from "../../middlewares/validate.jwt.js";
-import { validateFields } from "../../middlewares/validate-fields.js";
-
 import {
   createChat,
+  addMessageToChat,
   getChats,
   getChatById,
   closeChat,
-  addMessageToChat
+  triggerEmergency,
+  acceptEmergency
 } from "./chat.controller.js";
+
+import { validateJWT } from "../../middlewares/validate.jwt.js";
+import { validateFields } from "../../middlewares/validate-fields.js";
+import { validateRoles } from "../../middlewares/validate-roles.js";
 
 import {
   createChatValidators,
   idParamValidator,
   addMessageValidators,
   chatExistAndUserInvolved,
-  loadChat,
-  chatIsOpenValidator
+  chatIsOpenValidator,
+  limitEmergencyTriggerValidator
 } from "../../validators/chat.validators.js";
 
 const router = Router();
 
 /**
- * @route   POST /api/v1/chats
- * @desc    Iniciar un nuevo chat entre un USER y un VOLUNTEER
- * @access  Autenticado (ADMIN, USER, VOLUNTEER)
+ * Crear un nuevo chat (permitido: ADMIN, USER, VOLUNTEER)
  */
 router.post(
   "/",
-  [validateJWT, ...createChatValidators, validateFields],
+  validateJWT,
+  validateRoles("ADMIN", "USER", "VOLUNTEER"),
+  createChatValidators,
+  validateFields,
   createChat
 );
 
 /**
- * @route   GET /api/v1/chats
- * @desc    Listar todos los chats del usuario autenticado
- * @access  Autenticado
+ * Obtener todos los chats del usuario autenticado
  */
 router.get(
   "/",
-  [validateJWT],
+  validateJWT,
   getChats
 );
 
 /**
- * @route   GET /api/v1/chats/:id
- * @desc    Obtener un chat específico por ID (solo si participa)
- * @access  Autenticado
+ * Obtener un chat por ID (solo si el usuario participa o es ADMIN)
  */
 router.get(
-  "/:id/Id",
-  [validateJWT, ...idParamValidator, validateFields],
+  "/:id",
+  validateJWT,
+  idParamValidator,
+  validateFields,
+  chatExistAndUserInvolved,
   getChatById
 );
 
 /**
- * @route   PUT /api/v1/chats/:id/close
- * @desc    Cerrar un chat (status → CLOSED)
- * @access  Participantes o ADMIN
+ * Agregar un mensaje al chat (participantes o admin)
  */
-router.put(
+router.post(
+  "/:id/message",
+  validateJWT,
+  idParamValidator,
+  addMessageValidators,
+  validateFields,
+  chatExistAndUserInvolved,
+  chatIsOpenValidator,
+  addMessageToChat
+);
+
+/**
+ * Cerrar un chat (USER, VOLUNTEER o ADMIN)
+ */
+router.patch(
   "/:id/close",
-  [validateJWT, ...idParamValidator, validateFields],
+  validateJWT,
+  idParamValidator,
+  validateFields,
+  chatExistAndUserInvolved,
   closeChat
 );
 
 /**
- * @route   POST /api/v1/chats/:id/messages
- * @desc    Añadir un mensaje a un chat existente
- * @access  Participantes o ADMIN
+ * Reportar una emergencia (solo USER o ADMIN)
  */
 router.post(
-  "/:id/messages",
-  [
-    validateJWT,
-    ...idParamValidator,
-    ...addMessageValidators,
-    loadChat,                 // ✅ Cargar el chat primero
-    chatExistAndUserInvolved, // ✅ Validar si el usuario participa
-    chatIsOpenValidator,      // ✅ Verificar si el chat está activo
-    validateFields
-  ],
-  addMessageToChat
+  "/trigger-emergency",
+  validateJWT,
+  validateRoles("USER", "ADMIN"),
+  limitEmergencyTriggerValidator,
+  triggerEmergency
 );
 
+/**
+ * Aceptar una emergencia (solo VOLUNTEER o ADMIN)
+ */
+router.post(
+  "/:id/accept-emergency",
+  validateJWT,
+  validateRoles("VOLUNTEER", "ADMIN"),
+  idParamValidator,
+  validateFields,
+  acceptEmergency
+);
 
 export default router;

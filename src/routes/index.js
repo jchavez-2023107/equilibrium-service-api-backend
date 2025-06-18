@@ -3,6 +3,7 @@ import { Router } from "express";
 import authRoutes from "../auth/auth.routes.js";
 import userRoutes from "../entities/User/user.routes.js"; // ruta de User
 import chatRoutes from "../entities/Chat/chat.routes.js"
+import sessionHistory from "../entities/SessionHistory/sessionHistory.routes.js"
 //import resourceRoutes from "../entities/Resource/resource.routes.js"; // ruta de Resource
 
 const router = Router();
@@ -18,6 +19,7 @@ router.use("/auth", authRoutes);
 // Montar rutas de usuarios (cuando se definan)
 router.use("/users", userRoutes);
 router.use("/chats", chatRoutes)
+router.use("/sessionsHistorys", sessionHistory)
 // Montar rutas de recursos (cuando se definan)
 // router.use("/resources", resourceRoutes);
 

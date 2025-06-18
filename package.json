@@ -16,7 +16,7 @@
     "nodejs",
     "mongodb"
   ],
-  "author": "Joel Alejandro Chávez Pérez",
+  "author": "Andrés Alexander Oliva Solares, Joel Alejandro Chávez Pérez",
   "license": "MIT",
   "dependencies": {
     "argon2": "^0.43.0",

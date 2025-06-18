@@ -1,4 +1,4 @@
-import { check, param, body } from "express-validator";
+import { check, param } from "express-validator";
 import { isValidObjectId } from "mongoose";
 import Chat from "../entities/Chat/chat.model.js";
 
@@ -16,7 +16,6 @@ const objectIdValidator = (field) =>
 export const createChatValidators = [
   objectIdValidator("userId"),
   objectIdValidator("volunteerId"),
-  // Asegurarse de que no se cree un chat consigo mismo
   check("userId")
     .custom((value, { req }) => value !== req.body.volunteerId)
     .withMessage("userId y volunteerId no pueden ser iguales"),
@@ -33,7 +32,7 @@ export const idParamValidator = [
 
 /**
  * Middleware personalizado para validar que el chat existe
- * y que el usuario autenticado participa en él (como user o volunteer)
+ * y que el usuario autenticado participa en él
  */
 export const chatExistAndUserInvolved = async (req, res, next) => {
   const { id } = req.params;
@@ -59,21 +58,16 @@ export const chatExistAndUserInvolved = async (req, res, next) => {
   next();
 };
 
-
-
 /**
  * Middleware para asegurar que el chat aún no está cerrado
  */
 export const chatIsOpenValidator = (req, res, next) => {
   const chat = req.chat;
-  if (chat.status === "CLOSED") {
-    return res
-      .status(400)
-      .json({ success: false, message: "El chat ya está cerrado" });
+  if (chat.status === "CLOSED" || chat.status === "ENDED") {
+    return res.status(400).json({ success: false, message: "El chat ya está cerrado" });
   }
   next();
 };
-
 
 export const addMessageValidators = [
   check("text")
@@ -101,4 +95,37 @@ export const loadChat = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+};
+
+/**
+ * Validación para evitar múltiples emergencias seguidas por el mismo usuario
+ */
+export const limitEmergencyTriggerValidator = async (req, res, next) => {
+  const userId = req.user.id;
+
+  const chat = await Chat.findOne({ userId, status: "ACTIVE" });
+
+  if (!chat) {
+    return res.status(404).json({ success: false, message: "No tienes un chat activo para emergencias" });
+  }
+
+  const now = new Date();
+  const recentEmergency = chat.messages
+    .filter(msg => msg.isEmergency)
+    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
+
+  if (recentEmergency) {
+    const diffMs = now - new Date(recentEmergency.timestamp);
+    const diffMinutes = diffMs / 1000 / 60;
+
+    if (diffMinutes < 5) {
+      return res.status(429).json({
+        success: false,
+        message: "Ya reportaste una emergencia hace poco. Espera unos minutos para volver a enviar otra."
+      });
+    }
+  }
+
+  req.chat = chat;
+  next();
 };
