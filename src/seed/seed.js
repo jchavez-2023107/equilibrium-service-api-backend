@@ -1,6 +1,18 @@
 import mongoose from "mongoose";
 import User from "../entities/User/user.model.js";
+import Chat from "../entities/Chat/chat.model.js";
 import { encrypt } from "../utils/encrypt.js";
+import { v4 as uuidv4 } from "uuid";
+
+/**
+ * Normaliza nombres para que coincidan con los usernames generados
+ */
+const normalizeUsername = (name) =>
+  name
+    .normalize("NFD") // separar letras con acentos
+    .replace(/[\u0300-\u036f]/g, "") // eliminar acentos
+    .replace(/\s/g, "") // quitar espacios
+    .toLowerCase();
 
 /**
  * runSeed: inserta datos por defecto si la colección User está vacía.
@@ -11,7 +23,7 @@ export const runSeed = async () => {
 
     const usersCount = await User.countDocuments();
     if (usersCount === 0) {
-      // 2 Admins definidos con campos completos
+      // Admins
       const admins = [
         {
           displayName: "Administrador",
@@ -29,19 +41,17 @@ export const runSeed = async () => {
         }
       ];
 
-      // 10 Voluntarios (solo nombres)
       const volunteerNames = [
         "Pedro Bautista", "Sergio Matheu", "Pablo Palacios", "Alejandro Abascal", "Andrés Oliva",
         "Alexander Solares", "Diego Chupina", "André Méndez", "Joel Chávez", "Alejandro Pérez"
       ];
 
-      // 10 Usuarios normales (nombres guatemaltecos reales)
       const userNames = [
         "Juan Pérez", "María García", "Carlos Hernández", "Ana López", "Luis Morales",
         "José Martínez", "Marta Rivera", "Julio Escobar", "Claudia Ramírez", "Ricardo Castillo"
       ];
 
-      // Crear Admins
+      // Crear admins
       for (const adminData of admins) {
         const hashed = await encrypt(adminData.password);
         const profile = {
@@ -63,14 +73,12 @@ export const runSeed = async () => {
         console.log(`✅ ADMIN creado: ${adminData.username}`);
       }
 
-      // Función para crear Voluntarios y Usuarios sin puntos en username y emails concatenados
+      // Crear usuarios y voluntarios
       const seedByRole = async (names, role, status) => {
         for (const fullName of names) {
-          const [first, last] = fullName.split(' ');
-          const uname = `${first.toLowerCase()}${last.toLowerCase()}`;  // sin punto
-          const emailLocal = `${first.toLowerCase()}${last.toLowerCase()}`;  // pegados
+          const uname = normalizeUsername(fullName);
+          const emailLocal = uname;
 
-          // Contraseña fija de 5 caracteres según rol
           const plainPwd = role === 'VOLUNTEER' ? 'volun' : 'user1';
           const hashed = await encrypt(plainPwd);
 
@@ -112,16 +120,100 @@ export const runSeed = async () => {
         }
       };
 
-      // Ejecutar seeds con status ACTIVE
       await seedByRole(volunteerNames, 'VOLUNTEER', 'ACTIVE');
       await seedByRole(userNames, 'USER', 'ACTIVE');
+
+      // Obtener IDs para chats
+      const getUserId = async (rawName) => {
+        const uname = normalizeUsername(rawName);
+        const user = await User.findOne({ username: uname });
+        if (!user) throw new Error(`Usuario ${rawName} no encontrado (username: ${uname})`);
+        return user._id;
+      };
+
+      const chats = [
+        {
+          sessionId: uuidv4(),
+          userId: await getUserId("Juan Pérez"),
+          volunteerId: await getUserId("Pedro Bautista"),
+          status: "ACTIVE",
+          messages: [
+            {
+              senderId: await getUserId("Juan Pérez"),
+              text: "Hola, necesito hablar con alguien.",
+              timestamp: new Date(),
+              isEmergency: false
+            }
+          ]
+        },
+        {
+          sessionId: uuidv4(),
+          userId: await getUserId("Ana López"),
+          volunteerId: await getUserId("Andrés Oliva"),
+          status: "ENDED",
+          messages: [
+            {
+              senderId: await getUserId("Ana López"),
+              text: "Gracias por tu ayuda.",
+              timestamp: new Date(),
+              isEmergency: false
+            }
+          ]
+        },
+        {
+          sessionId: uuidv4(),
+          userId: await getUserId("Luis Morales"),
+          volunteerId: await getUserId("Diego Chupina"),
+          status: "ACTIVE",
+          messages: [
+            {
+              senderId: await getUserId("Luis Morales"),
+              text: "¡Ayuda urgente, por favor!",
+              timestamp: new Date(),
+              isEmergency: true
+            }
+          ]
+        },
+        {
+          sessionId: uuidv4(),
+          userId: await getUserId("Marta Rivera"),
+          volunteerId: await getUserId("Sergio Matheu"),
+          status: "PENDING",
+          messages: []
+        },
+        {
+          sessionId: uuidv4(),
+          userId: await getUserId("Claudia Ramírez"),
+          volunteerId: await getUserId("André Méndez"),
+          emergencyTakenBy: await getUserId("André Méndez"),
+          status: "ACTIVE",
+          messages: [
+            {
+              senderId: await getUserId("Claudia Ramírez"),
+              text: "¡Emergencia reportada!",
+              isEmergency: true,
+              isSystem: true,
+              timestamp: new Date()
+            },
+            {
+              senderId: await getUserId("André Méndez"),
+              text: "Estoy contigo, tranquila.",
+              isEmergency: false,
+              timestamp: new Date()
+            }
+          ]
+        }
+      ];
+
+      await Chat.insertMany(chats);
+      console.log("✅ Chats de ejemplo insertados.");
     } else {
-      console.log("ℹ️ Ya existen usuarios, se omite seed de usuarios.");
+      console.log("ℹ️ Ya existen usuarios, se omite seed de usuarios y chats.");
     }
 
-    console.log("✅ Seed de usuarios completado sin errores.");
+    console.log("✅ Seed completado sin errores.");
   } catch (err) {
-    console.error("❌ Error ejecutando seed de usuarios:", err);
+    console.error("❌ Error ejecutando seed:", err);
     throw err;
   }
 };
