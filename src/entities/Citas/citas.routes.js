@@ -18,11 +18,11 @@ import {
 const router = Router();
 
 /**
- * Crear cita - Solo usuarios con rol USER
+ * Crear cita - Usuarios con cualquier rol
  */
 router.post(
   "/",
-  [validateJWT, validateRoles("USER"), ...createAppointmentValidators, validateFields],
+  [validateJWT, validateRoles("ADMIN", "VOLUNTEER", "USER"), ...createAppointmentValidators, validateFields],
   createAppointment
 );
 

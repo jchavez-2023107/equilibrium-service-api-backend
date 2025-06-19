@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import { connectDB } from "./db/mongo.js";
-import { createApp } from "./config/app.js";   // Cambia: usaremos createApp (no initServer)
+import { createApp } from "./config/app.js"; // Cambia: usaremos createApp (no initServer)
 import { runSeed } from "./seed/seed.js";
 
 import { createServer } from "http";
@@ -26,15 +26,16 @@ import jwt from "jsonwebtoken";
     // 2. Configuramos Socket.IO
     const io = new SocketIOServer(httpServer, {
       cors: {
-        origin: "*",   // Cambia si tienes un frontend con dominio específico
-        methods: ["GET", "POST"]
-      }
+        origin: "*", // Cambia si tienes un frontend con dominio específico
+        methods: ["GET", "POST"],
+      },
     });
 
     // 3. Middleware de autenticación con JWT para sockets
     io.use((socket, next) => {
       try {
-        const token = socket.handshake.auth?.token || socket.handshake.query?.token;
+        const token =
+          socket.handshake.auth?.token || socket.handshake.query?.token;
         if (!token) return next(new Error("No token provided"));
         const secretKey = process.env.SECRET_KEY;
         const decoded = jwt.verify(token, secretKey);
@@ -47,13 +48,27 @@ import jwt from "jsonwebtoken";
 
     // 4. Escuchamos conexiones y unimos a sala personalizada (userId)
     io.on("connection", (socket) => {
-      const userId = socket.user?.uid || socket.user?.id;
-      if (userId) {
-        socket.join(userId.toString());
-        // Puedes añadir logs/debug
-        // console.log(`Usuario conectado al socket: ${userId}`);
+      // 👇 Así recuperas el token del handshake
+      const token = socket.handshake.auth?.token;
+      if (!token) {
+        socket.disconnect();
+        return;
       }
-      // Aquí puedes manejar otros eventos si deseas...
+      try {
+        const decoded = jwt.verify(token, process.env.SECRET_KEY);
+        const userId = decoded.uid || decoded.id;
+        if (userId) {
+          socket.join(userId.toString());
+          console.log(
+            `[Socket.IO] Usuario conectado al socket y unido a sala: ${userId}`, "Salas: ", Array.from(socket.rooms)
+          );
+          socket.user = { uid: userId };
+        }
+      } catch (e) {
+        console.error("❌ JWT error al conectar socket:", e.message);
+        socket.disconnect();
+        return;
+      }
     });
 
     // 5. Guardamos io en app.locals para que esté accesible en todos los controladores
@@ -64,9 +79,11 @@ import jwt from "jsonwebtoken";
     httpServer.listen(port, () => {
       console.log(`✅ Server + Socket.IO corriendo en puerto ${port}`);
     });
-
   } catch (err) {
-    console.error("❌ Error crítico en la inicialización de la aplicación:", err);
+    console.error(
+      "❌ Error crítico en la inicialización de la aplicación:",
+      err
+    );
     process.exit(1);
   }
 })();

@@ -1,7 +1,10 @@
 import Chat from "./chat.model.js";
 import User from "../User/user.model.js";
 import { v4 as uuidv4 } from "uuid";
-import { createEmergencyAlertNotification, notifyEmergencyTaken } from "../Notification/notification.controller.js";
+import {
+  createEmergencyAlertNotification,
+  notifyEmergencyTaken,
+} from "../Notification/notification.controller.js";
 
 /**
  * createChat: Inicia un nuevo chat entre un usuario y un voluntario.
@@ -12,39 +15,47 @@ export const createChat = async (req, res, next) => {
 
     const [user, volunteer] = await Promise.all([
       User.findById(userId),
-      User.findById(volunteerId)
+      User.findById(volunteerId),
     ]);
 
     if (!user || !volunteer) {
-      return res.status(404).json({ success: false, message: "Usuario(s) no encontrado(s)" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Usuario(s) no encontrado(s)" });
     }
 
     if (user.role !== "USER" || volunteer.role !== "VOLUNTEER") {
-      return res.status(400).json({ success: false, message: "Roles incorrectos para iniciar chat" });
+      return res.status(400).json({
+        success: false,
+        message: "Roles incorrectos para iniciar chat",
+      });
     }
 
     const existing = await Chat.findOne({
       userId: userId,
       volunteerId: volunteerId,
-      status: "ACTIVE"
+      status: "ACTIVE",
     });
 
     if (existing) {
-      return res.status(409).json({ success: false, message: "Ya existe un chat activo entre estos usuarios" });
+      return res.status(409).json({
+        success: false,
+        message: "Ya existe un chat activo entre estos usuarios",
+      });
     }
 
     const newChat = new Chat({
       sessionId: uuidv4(),
       userId,
       volunteerId,
-      status: "ACTIVE"
+      status: "ACTIVE",
     });
 
     await newChat.save();
 
     await newChat.populate([
       { path: "userId", select: "_id username" },
-      { path: "volunteerId", select: "_id username" }
+      { path: "volunteerId", select: "_id username" },
     ]);
 
     // -------- SOCKET.IO: Notifica a ambos usuarios que hay nuevo chat --------
@@ -77,14 +88,14 @@ export const addMessageToChat = async (req, res, next) => {
     ) {
       return res.status(403).json({
         success: false,
-        message: "No estás autorizado para enviar mensajes en este chat"
+        message: "No estás autorizado para enviar mensajes en este chat",
       });
     }
 
     if (chat.status === "ENDED") {
       return res.status(400).json({
         success: false,
-        message: "El chat está cerrado"
+        message: "El chat está cerrado",
       });
     }
 
@@ -92,24 +103,56 @@ export const addMessageToChat = async (req, res, next) => {
       senderId,
       text,
       isEmergency,
-      timestamp: new Date()
+      timestamp: new Date(),
     });
 
     await chat.save();
 
     await chat.populate([
       { path: "userId", select: "_id username" },
-      { path: "volunteerId", select: "_id username" }
+      { path: "volunteerId", select: "_id username" },
     ]);
 
     // -------- SOCKET.IO: Notifica a ambos usuarios del nuevo mensaje --------
+    console.log("🔴 [DEBUG] Entrando a addMessageToChat, sender:", senderId);
+    console.log(
+      "chat.userId:",
+      chat.userId?._id?.toString() || chat.userId.toString(),
+      "chat.volunteerId:",
+      chat.volunteerId?._id?.toString() || chat.volunteerId.toString()
+    );
+
     const io = req.app.locals.io;
     if (io) {
-      io.to(chat.userId.toString()).emit("chat:message", { chatId: chat._id, message: chat.messages.at(-1) });
-      io.to(chat.volunteerId.toString()).emit("chat:message", { chatId: chat._id, message: chat.messages.at(-1) });
+      // Usa siempre el _id como string
+      const userId = chat.userId?._id?.toString() || chat.userId.toString();
+      const volunteerId =
+        chat.volunteerId?._id?.toString() || chat.volunteerId.toString();
+
+      console.log(
+        "[SOCKET] Emitiendo mensaje a userId:",
+        userId,
+        "volunteerId:",
+        volunteerId
+      );
+
+      io.to(userId).emit("chat:message", {
+        chatId: chat._id,
+        message: chat.messages.at(-1),
+      });
+      io.to(volunteerId).emit("chat:message", {
+        chatId: chat._id,
+        message: chat.messages.at(-1),
+      });
       // Si hay emergencyTakenBy, notifícalo también
-      if (chat.emergencyTakenBy && chat.emergencyTakenBy.toString() !== chat.volunteerId.toString()) {
-        io.to(chat.emergencyTakenBy.toString()).emit("chat:message", { chatId: chat._id, message: chat.messages.at(-1) });
+      if (
+        chat.emergencyTakenBy &&
+        chat.emergencyTakenBy.toString() !== volunteerId
+      ) {
+        io.to(chat.emergencyTakenBy.toString()).emit("chat:message", {
+          chatId: chat._id,
+          message: chat.messages.at(-1),
+        });
       }
     }
 
@@ -131,8 +174,8 @@ export const getChats = async (req, res, next) => {
       ...(role === "VOLUNTEER"
         ? { volunteerId: id }
         : role === "ADMIN"
-          ? {}
-          : { userId: id })
+        ? {}
+        : { userId: id }),
     };
 
     const chats = await Chat.find(filter)
@@ -157,7 +200,9 @@ export const getChatById = async (req, res, next) => {
       .populate("volunteerId", "_id username");
 
     if (!chat) {
-      return res.status(404).json({ success: false, message: "Chat no encontrado" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Chat no encontrado" });
     }
 
     res.json({ success: true, chat });
@@ -165,7 +210,6 @@ export const getChatById = async (req, res, next) => {
     next(err);
   }
 };
-
 
 /**
  * closeChat: Cierra el chat (status → ENDED).
@@ -178,7 +222,9 @@ export const closeChat = async (req, res, next) => {
     const chat = await Chat.findById(id);
 
     if (!chat) {
-      return res.status(404).json({ success: false, message: "Chat no encontrado" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Chat no encontrado" });
     }
 
     if (
@@ -186,7 +232,10 @@ export const closeChat = async (req, res, next) => {
       chat.volunteerId?.toString() !== requester.id &&
       requester.role !== "ADMIN"
     ) {
-      return res.status(403).json({ success: false, message: "No autorizado para cerrar este chat" });
+      return res.status(403).json({
+        success: false,
+        message: "No autorizado para cerrar este chat",
+      });
     }
 
     chat.status = "ENDED";
@@ -194,7 +243,7 @@ export const closeChat = async (req, res, next) => {
 
     await chat.populate([
       { path: "userId", select: "_id username" },
-      { path: "volunteerId", select: "_id username" }
+      { path: "volunteerId", select: "_id username" },
     ]);
 
     res.json({ success: true, chat });
@@ -214,7 +263,10 @@ export const triggerEmergency = async (req, res, next) => {
     const chat = await Chat.findOne({ userId, status: "ACTIVE" });
 
     if (!chat) {
-      return res.status(400).json({ success: false, message: "No tienes un chat activo para reportar la emergencia." });
+      return res.status(400).json({
+        success: false,
+        message: "No tienes un chat activo para reportar la emergencia.",
+      });
     }
 
     chat.messages.push({
@@ -222,8 +274,8 @@ export const triggerEmergency = async (req, res, next) => {
       text: "Emergencia reportada por el usuario",
       isEmergency: true,
       isSystem: true,
-      timestamp: new Date()
-    }); 
+      timestamp: new Date(),
+    });
 
     await chat.save();
 
@@ -246,17 +298,24 @@ export const acceptEmergency = async (req, res, next) => {
     const chat = await Chat.findById(id);
 
     if (!chat) {
-      return res.status(404).json({ success: false, message: "Chat no encontrado" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Chat no encontrado" });
     }
 
-    const hasEmergency = chat.messages.some(m => m.isEmergency);
+    const hasEmergency = chat.messages.some((m) => m.isEmergency);
 
     if (!hasEmergency) {
-      return res.status(400).json({ success: false, message: "Este chat no tiene emergencia activa" });
+      return res.status(400).json({
+        success: false,
+        message: "Este chat no tiene emergencia activa",
+      });
     }
 
     if (chat.emergencyTakenBy) {
-      return res.status(400).json({ success: false, message: "Emergencia ya fue tomada" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Emergencia ya fue tomada" });
     }
 
     chat.emergencyTakenBy = volunteerId;
@@ -265,7 +324,9 @@ export const acceptEmergency = async (req, res, next) => {
 
     await notifyEmergencyTaken(chat._id, volunteerId);
 
-    res.status(200).json({ success: true, message: "Emergencia aceptada", chat });
+    res
+      .status(200)
+      .json({ success: true, message: "Emergencia aceptada", chat });
   } catch (err) {
     next(err);
   }
@@ -281,7 +342,7 @@ export const handleEmergencyChatAfterTake = async (userId, volunteerId) => {
       volunteerId,
       emergencyTakenBy: volunteerId,
       status: "ACTIVE",
-      messages: []
+      messages: [],
     });
   }
 
@@ -290,7 +351,7 @@ export const handleEmergencyChatAfterTake = async (userId, volunteerId) => {
     text: "Estoy contigo, ya tomé tu emergencia. Te ayudaré.",
     isEmergency: true,
     isSystem: true,
-    timestamp: new Date()
+    timestamp: new Date(),
   });
 
   chat.volunteerId = volunteerId;
