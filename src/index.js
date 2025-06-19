@@ -22,12 +22,13 @@ import jwt from "jsonwebtoken";
     const httpServer = createServer(app);
 
     // 2. Socket.IO setup
-    const io = new SocketIOServer(httpServer, {
-      cors: {
-        origin: "*", // Cambia esto en producción si usas dominio fijo
-        methods: ["GET", "POST"]
-      }
-    });
+const io = new SocketIOServer(httpServer, {
+  cors: {
+    origin: "http://localhost:5173", // 👈 MATCH exacto con el frontend
+    methods: ["GET", "POST"],
+    credentials: true // 👈 necesario si usas withCredentials
+  }
+});
 
     // 3. Middleware JWT para socket.io (!!!)
     io.use((socket, next) => {
