@@ -19,7 +19,8 @@ import {
   addMessageValidators,
   chatExistAndUserInvolved,
   chatIsOpenValidator,
-  limitEmergencyTriggerValidator
+  limitEmergencyTriggerValidator,
+  canAcceptEmergency
 } from "../../validators/chat.validators.js";
 
 const router = Router();
@@ -80,6 +81,7 @@ router.patch(
   idParamValidator,
   validateFields,
   chatExistAndUserInvolved,
+  chatIsOpenValidator,
   closeChat
 );
 
@@ -103,6 +105,8 @@ router.post(
   validateRoles("VOLUNTEER", "ADMIN"),
   idParamValidator,
   validateFields,
+  chatExistAndUserInvolved,
+  canAcceptEmergency,
   acceptEmergency
 );
 

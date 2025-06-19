@@ -207,6 +207,9 @@ export const triggerEmergency = async (req, res, next) => {
       return res.status(400).json({ success: false, message: "No tienes un chat activo para reportar la emergencia." });
     }
 
+    // Aquí asignamos el tipo para que canAcceptEmergency lo valide
+    chat.type = "EMERGENCY";
+
     chat.messages.push({
       senderId: req.user.id, // o null
       text: "Emergencia reportada por el usuario",
