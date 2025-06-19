@@ -132,26 +132,12 @@ export const getChats = async (req, res, next) => {
  */
 export const getChatById = async (req, res, next) => {
   try {
-    const { id } = req.params;
-    const requester = req.user;
-
-    const chat = await Chat.findById(id)
-      .populate("userId", "_id username")
-      .populate("volunteerId", "_id username");
-
-    if (!chat) {
-      return res.status(404).json({ success: false, message: "Chat no encontrado" });
-    }
-
-    if (
-      chat.userId.toString() !== requester.id &&
-      chat.volunteerId?.toString() !== requester.id &&
-      chat.emergencyTakenBy?.toString() !== requester.id
-    ) {
-      return res.status(403).json({ success: false, message: "No tienes acceso a este chat" });
-    }
-
-    res.json({ success: true, chat });
+    // req.chat ya está validado (existe + acceso) por chatExistAndUserInvolved
+    const chat = await req.chat.populate([
+      { path: "userId",      select: "_id username" },
+      { path: "volunteerId", select: "_id username" }
+    ]);
+    return res.json({ success: true, chat });
   } catch (err) {
     next(err);
   }
