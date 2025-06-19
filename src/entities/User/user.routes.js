@@ -51,7 +51,7 @@ router.post(
  */
 router.get(
   "/",
-  [validateJWT, validateRoles("ADMIN")],
+  [validateJWT, validateRoles("ADMIN","VOLUNTEER","USER")],
   getUsers
 );
 

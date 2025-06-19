@@ -20,7 +20,7 @@ import {
   chatExistAndUserInvolved,
   chatIsOpenValidator,
   limitEmergencyTriggerValidator,
-  canAcceptEmergency
+  canTakeEmergencies 
 } from "../../validators/chat.validators.js";
 
 const router = Router();
@@ -81,7 +81,6 @@ router.patch(
   idParamValidator,
   validateFields,
   chatExistAndUserInvolved,
-  chatIsOpenValidator,
   closeChat
 );
 
@@ -103,10 +102,9 @@ router.post(
   "/:id/accept-emergency",
   validateJWT,
   validateRoles("VOLUNTEER", "ADMIN"),
+  canTakeEmergencies,
   idParamValidator,
   validateFields,
-  chatExistAndUserInvolved,
-  canAcceptEmergency,
   acceptEmergency
 );
 

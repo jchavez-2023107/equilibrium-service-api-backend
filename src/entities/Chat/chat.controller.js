@@ -132,16 +132,22 @@ export const getChats = async (req, res, next) => {
  */
 export const getChatById = async (req, res, next) => {
   try {
-    // req.chat ya está validado (existe + acceso) por chatExistAndUserInvolved
-    const chat = await req.chat.populate([
-      { path: "userId",      select: "_id username" },
-      { path: "volunteerId", select: "_id username" }
-    ]);
-    return res.json({ success: true, chat });
+    const { id } = req.params;
+
+    const chat = await Chat.findById(id)
+      .populate("userId", "_id username")
+      .populate("volunteerId", "_id username");
+
+    if (!chat) {
+      return res.status(404).json({ success: false, message: "Chat no encontrado" });
+    }
+
+    res.json({ success: true, chat });
   } catch (err) {
     next(err);
   }
 };
+
 
 /**
  * closeChat: Cierra el chat (status → ENDED).
@@ -192,9 +198,6 @@ export const triggerEmergency = async (req, res, next) => {
     if (!chat) {
       return res.status(400).json({ success: false, message: "No tienes un chat activo para reportar la emergencia." });
     }
-
-    // Aquí asignamos el tipo para que canAcceptEmergency lo valide
-    chat.type = "EMERGENCY";
 
     chat.messages.push({
       senderId: req.user.id, // o null
@@ -248,4 +251,33 @@ export const acceptEmergency = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+};
+
+export const handleEmergencyChatAfterTake = async (userId, volunteerId) => {
+  let chat = await Chat.findOne({ userId, status: "ACTIVE" });
+
+  if (!chat) {
+    chat = new Chat({
+      sessionId: uuidv4(),
+      userId,
+      volunteerId,
+      emergencyTakenBy: volunteerId,
+      status: "ACTIVE",
+      messages: []
+    });
+  }
+
+  chat.messages.push({
+    senderId: volunteerId,
+    text: "Estoy contigo, ya tomé tu emergencia. Te ayudaré.",
+    isEmergency: true,
+    isSystem: true,
+    timestamp: new Date()
+  });
+
+  chat.volunteerId = volunteerId;
+  chat.emergencyTakenBy = volunteerId;
+
+  await chat.save();
+  return chat;
 };

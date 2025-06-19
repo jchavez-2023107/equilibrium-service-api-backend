@@ -4,11 +4,11 @@ import {
   takeEmergencyNotification,
   getNotificationsByUser,
   markNotificationAsRead
-} from "../entities/Notification/notification.controller.js";
+} from "./notification.controller.js";
 
-import { validateJWT } from "../middlewares/validateJWT.js";
-import { notificationIdValidator } from "../entities/Notification/notification.validators.js";
-import { validateFields } from "../middlewares/validateFields.js";
+import { validateJWT } from "../../middlewares/validate.jwt.js";
+import { notificationIdValidator, validateFields } from "../../validators/notification.validators.js";
+import { canTakeEmergencies } from "../../validators/chat.validators.js";
 
 const router = Router();
 
@@ -32,7 +32,10 @@ router.post(
 // Tomar una emergencia (solo 1 voluntario puede hacerlo)
 router.put(
   "/take/:notificationId",
-  [validateJWT, ...notificationIdValidator, validateFields],
+  validateJWT,
+  canTakeEmergencies,
+  ...notificationIdValidator,
+  validateFields,
   takeEmergencyNotification
 );
 

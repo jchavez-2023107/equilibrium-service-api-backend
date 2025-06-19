@@ -45,10 +45,19 @@ export const chatExistAndUserInvolved = async (req, res, next) => {
   const uid = req.user.id;
   const userId = chat.userId?.toString();
   const volunteerId = chat.volunteerId?.toString();
+  const emergencyTakenBy = chat.emergencyTakenBy?.toString();
+
+  console.log("======= DEBUG ACCESS =======");
+  console.log("Usuario autenticado:", uid);
+  console.log("Rol:", req.user.role);
+  console.log("Chat.userId:", userId);
+  console.log("Chat.volunteerId:", volunteerId);
+  console.log("Chat.emergencyTakenBy:", emergencyTakenBy);
 
   if (
     userId !== uid &&
     volunteerId !== uid &&
+    emergencyTakenBy !== uid &&
     req.user.role !== "ADMIN"
   ) {
     return res.status(403).json({ success: false, message: "No tienes acceso a este chat" });
@@ -58,16 +67,14 @@ export const chatExistAndUserInvolved = async (req, res, next) => {
   next();
 };
 
+
 /**
  * Middleware para asegurar que el chat aún no está cerrado
  */
 export const chatIsOpenValidator = (req, res, next) => {
-  const { status } = req.chat;
-  // Solo permitimos mensajes si el chat está ACTIVO
-  if (status !== "ACTIVE") {
-    return res
-      .status(400)
-      .json({ success: false, message: "No puedes enviar mensajes en un chat que no está activo" });
+  const chat = req.chat;
+  if (chat.status === "CLOSED" || chat.status === "ENDED") {
+    return res.status(400).json({ success: false, message: "El chat ya está cerrado" });
   }
   next();
 };
@@ -133,32 +140,20 @@ export const limitEmergencyTriggerValidator = async (req, res, next) => {
   next();
 };
 
-/**
- * Valida que el chat:
- *  - Sea de tipo EMERGENCY
- *  - No tenga ya un emergencyTakenBy
- *  - (Opcional) que siga ACTIVE
- */
-export const canAcceptEmergency = (req, res, next) => {
-  const { type, emergencyTakenBy, status } = req.chat;
 
-  if (type !== "EMERGENCY") {
-    return res
-      .status(400)
-      .json({ success: false, message: "Este chat no está marcado como emergencia" });
-  }
+export const canTakeEmergencies = (req, res, next) => {
+  const user = req.user;
 
-  if (emergencyTakenBy) {
-    return res
-      .status(400)
-      .json({ success: false, message: "La emergencia ya ha sido aceptada por otro voluntario" });
-  }
-
-  // opcional: asegurar que siga activo
-  if (status !== "ACTIVE") {
-    return res
-      .status(400)
-      .json({ success: false, message: "No puedes aceptar una emergencia en un chat inactivo" });
+  if (
+    user.role !== "VOLUNTEER" ||
+    !user.volunteerData ||
+    !Array.isArray(user.volunteerData.needs) ||
+    !user.volunteerData.needs.includes("EMERGENCY")
+  ) {
+    return res.status(403).json({
+      success: false,
+      message: "No estás autorizado para tomar emergencias"
+    });
   }
 
   next();

@@ -174,7 +174,7 @@
 							"script": {
 								"exec": [
 									"var data = JSON.parse(responseBody);\r",
-									"postman.setGlobalVariable(\"token1\", data.token)"
+									"postman.setGlobalVariable(\"user\", data.token)"
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -189,7 +189,7 @@
 							"urlencoded": [
 								{
 									"key": "userlogin",
-									"value": "juanpérez",
+									"value": "juanperez",
 									"type": "text"
 								},
 								{
@@ -235,7 +235,7 @@
 							"urlencoded": [
 								{
 									"key": "userlogin",
-									"value": "maríagarcía",
+									"value": "mariagarcia",
 									"type": "text"
 								},
 								{
@@ -266,7 +266,7 @@
 							"script": {
 								"exec": [
 									"var data = JSON.parse(responseBody);\r",
-									"postman.setGlobalVariable(\"token2\", data.token)"
+									"postman.setGlobalVariable(\"volunteer\", data.token)"
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -281,7 +281,7 @@
 							"urlencoded": [
 								{
 									"key": "userlogin",
-									"value": "alejandropérez",
+									"value": "alejandroperez",
 									"type": "text"
 								},
 								{
@@ -1052,7 +1052,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI2ODUyN2MwMDZhOWE3NjJmYjYyMTIwNDEiLCJ1c2VybmFtZSI6ImFkbWluIiwicm9sZSI6IkFETUlOIiwiZW1haWwiOiJhZG1pbkBlcXVpbGlicml1bS5sb2NhbCIsImlhdCI6MTc1MDIzOTM0OX0.tkcB3R_IjZppgTGIfYIIh5Bed2nLv4tjYoABqzFnuu4",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI2ODUzNjJmOGJhMjZkNWNhMjc4NjRhMjUiLCJ1c2VybmFtZSI6Imp1YW5wZXJleiIsInJvbGUiOiJVU0VSIiwiZW1haWwiOiJqdWFucGVyZXpAZXF1aWxpYnJpdW0ubG9jYWwiLCJpYXQiOjE3NTAyOTU2ODF9.mNOnd0_Oj3ge0DqKNrbPedGK-kzIoiXCq-T3PMT2Vus",
 								"type": "text"
 							}
 						],
@@ -1061,50 +1061,12 @@
 							"urlencoded": [
 								{
 									"key": "userId",
-									"value": "68527c016a9a762fb6212059",
+									"value": "685362f8ba26d5ca27864a25",
 									"type": "text"
 								},
 								{
 									"key": "volunteerId",
-									"value": "68527c016a9a762fb6212057",
-									"type": "text"
-								}
-							]
-						},
-						"url": {
-							"raw": "{{base_url}}/chats",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"chats"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Create Chat Copy",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "urlencoded",
-							"urlencoded": [
-								{
-									"key": "userId",
-									"value": "684cdfb80d38f6016413a9fc",
-									"type": "text"
-								},
-								{
-									"key": "volunteerId",
-									"value": "684cdfb80d38f6016413a9e8",
+									"value": "685362f8ba26d5ca27864a23",
 									"type": "text"
 								}
 							]
@@ -1128,7 +1090,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{token1}}",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI2ODUzNjJmOGJhMjZkNWNhMjc4NjRhMjUiLCJ1c2VybmFtZSI6Imp1YW5wZXJleiIsInJvbGUiOiJVU0VSIiwiZW1haWwiOiJqdWFucGVyZXpAZXF1aWxpYnJpdW0ubG9jYWwiLCJpYXQiOjE3NTAyOTU2ODF9.mNOnd0_Oj3ge0DqKNrbPedGK-kzIoiXCq-T3PMT2Vus",
 								"type": "text"
 							}
 						],
@@ -1148,7 +1110,7 @@
 							]
 						},
 						"url": {
-							"raw": "http://localhost:2636/api/v1/chats/68528a34e7d8592cbd0a10c5/message",
+							"raw": "http://localhost:2636/api/v1/chats/685364f1ba26d5ca27864a5c/message",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -1158,7 +1120,7 @@
 								"api",
 								"v1",
 								"chats",
-								"68528a34e7d8592cbd0a10c5",
+								"685364f1ba26d5ca27864a5c",
 								"message"
 							]
 						}
@@ -1291,7 +1253,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{token1}}",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI2ODUzNjJmOGJhMjZkNWNhMjc4NjRhMjUiLCJ1c2VybmFtZSI6Imp1YW5wZXJleiIsInJvbGUiOiJVU0VSIiwiZW1haWwiOiJqdWFucGVyZXpAZXF1aWxpYnJpdW0ubG9jYWwiLCJpYXQiOjE3NTAzMDI1NDJ9.m5AkLE4ST80gdxnRE20R5reaFFv_rxowdtGfVKzBQwI",
 								"type": "text"
 							}
 						],
@@ -1313,7 +1275,7 @@
 							]
 						},
 						"url": {
-							"raw": "http://localhost:2636/api/v1/chats/68528a34e7d8592cbd0a10c5",
+							"raw": "http://localhost:2636/api/v1/chats/685364f1ba26d5ca27864a5c",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -1323,7 +1285,7 @@
 								"api",
 								"v1",
 								"chats",
-								"68528a34e7d8592cbd0a10c5"
+								"685364f1ba26d5ca27864a5c"
 							]
 						}
 					},
@@ -1396,7 +1358,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{token1}}",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI2ODUzNjJmOGJhMjZkNWNhMjc4NjRhMjUiLCJ1c2VybmFtZSI6Imp1YW5wZXJleiIsInJvbGUiOiJVU0VSIiwiZW1haWwiOiJqdWFucGVyZXpAZXF1aWxpYnJpdW0ubG9jYWwiLCJpYXQiOjE3NTAzMDQ4MDB9.qi5MOgbfxjNsBWS70XfuMxqfv5k78bJ3HY6UIfX-DWU",
 								"type": "text"
 							}
 						],
@@ -1405,7 +1367,7 @@
 							"urlencoded": []
 						},
 						"url": {
-							"raw": "http://localhost:2636/api/v1/chats/trigger-emergency?",
+							"raw": "http://localhost:2636/api/v1/chats/trigger-emergency",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -1416,30 +1378,24 @@
 								"v1",
 								"chats",
 								"trigger-emergency"
-							],
-							"query": [
-								{
-									"key": "",
-									"value": null
-								}
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "New Request",
+					"name": "Aceptar Emergencia",
 					"request": {
 						"method": "POST",
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{token2}}",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI2ODUzNjJmOGJhMjZkNWNhMjc4NjRhMjMiLCJ1c2VybmFtZSI6ImFsZWphbmRyb3BlcmV6Iiwicm9sZSI6IlZPTFVOVEVFUiIsImVtYWlsIjoiYWxlamFuZHJvcGVyZXpAZXF1aWxpYnJpdW0ubG9jYWwiLCJpYXQiOjE3NTAzMDQ4OTR9.h3FLDHVxcpxyGkhPXpJzPuHsmHuwtPUvIIaue07l5Iw",
 								"type": "text"
 							}
 						],
 						"url": {
-							"raw": "http://localhost:2636/api/v1/chats/68528a34e7d8592cbd0a10c5/accept-emergency",
+							"raw": "http://localhost:2636/api/v1/chats/685362f8ba26d5ca27864a49/accept-emergency",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -1449,8 +1405,261 @@
 								"api",
 								"v1",
 								"chats",
-								"68528a34e7d8592cbd0a10c5",
+								"685362f8ba26d5ca27864a49",
 								"accept-emergency"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get Notificaciones ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI2ODUzNjJmOGJhMjZkNWNhMjc4NjRhMjUiLCJ1c2VybmFtZSI6Imp1YW5wZXJleiIsInJvbGUiOiJVU0VSIiwiZW1haWwiOiJqdWFucGVyZXpAZXF1aWxpYnJpdW0ubG9jYWwiLCJpYXQiOjE3NTAzMDQ4MDB9.qi5MOgbfxjNsBWS70XfuMxqfv5k78bJ3HY6UIfX-DWU",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:2636/api/v1/notifications",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "2636",
+							"path": [
+								"api",
+								"v1",
+								"notifications"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Leer Notificaciones",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI2ODUzNjJmOGJhMjZkNWNhMjc4NjRhMjMiLCJ1c2VybmFtZSI6ImFsZWphbmRyb3BlcmV6Iiwicm9sZSI6IlZPTFVOVEVFUiIsImVtYWlsIjoiYWxlamFuZHJvcGVyZXpAZXF1aWxpYnJpdW0ubG9jYWwiLCJpYXQiOjE3NTAzMDQ4OTR9.h3FLDHVxcpxyGkhPXpJzPuHsmHuwtPUvIIaue07l5Iw",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:2636/api/v1/notifications/685388abc36dc9b33197be40/read",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "2636",
+							"path": [
+								"api",
+								"v1",
+								"notifications",
+								"685388abc36dc9b33197be40",
+								"read"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Enviar Emergencia",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI2ODUzNjJmOGJhMjZkNWNhMjc4NjRhMjUiLCJ1c2VybmFtZSI6Imp1YW5wZXJleiIsInJvbGUiOiJVU0VSIiwiZW1haWwiOiJqdWFucGVyZXpAZXF1aWxpYnJpdW0ubG9jYWwiLCJpYXQiOjE3NTAzMDQ4MDB9.qi5MOgbfxjNsBWS70XfuMxqfv5k78bJ3HY6UIfX-DWU",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:2636/api/v1/notifications/emergency-alert",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "2636",
+							"path": [
+								"api",
+								"v1",
+								"notifications",
+								"emergency-alert"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Aceptar Emergencia Voluntario",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:2636/api/v1/notifications/take/685388abc36dc9b33197be40",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "2636",
+							"path": [
+								"api",
+								"v1",
+								"notifications",
+								"take",
+								"685388abc36dc9b33197be40"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Citas",
+			"item": [
+				{
+					"name": "Agendar Cita",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{user}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "volunteerId",
+									"value": "685362f8ba26d5ca27864a23",
+									"type": "text"
+								},
+								{
+									"key": "scheduledAt",
+									"value": "2025-07-01T15:00:00.000Z",
+									"type": "text"
+								},
+								{
+									"key": "reason",
+									"value": "Necesito apoyo psicológico",
+									"type": "text"
+								},
+								{
+									"key": "notes",
+									"value": "Preferiblemente en la tarde",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:2636/api/v1/appointments",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "2636",
+							"path": [
+								"api",
+								"v1",
+								"appointments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer {{user}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:2636/api/v1/appointments",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "2636",
+							"path": [
+								"api",
+								"v1",
+								"appointments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetId",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{user}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:2636/api/v1/appointments/68539889e00cd2254de376a9",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "2636",
+							"path": [
+								"api",
+								"v1",
+								"appointments",
+								"68539889e00cd2254de376a9"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "New Request",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{user}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI2ODUzNjJmOGJhMjZkNWNhMjc4NjRhMjciLCJ1c2VybmFtZSI6Im1hcmlhZ2FyY2lhIiwicm9sZSI6IlVTRVIiLCJlbWFpbCI6Im1hcmlhZ2FyY2lhQGVxdWlsaWJyaXVtLmxvY2FsIiwiaWF0IjoxNzUwMzA5MjcxfQ.6k3MuG_uy3x7BY7uB8WWQpysFDBoJl4O1Nf0qCrKp-g",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:2636/api/v1/appointments/68539991e00cd2254de376c4",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "2636",
+							"path": [
+								"api",
+								"v1",
+								"appointments",
+								"68539991e00cd2254de376c4"
 							]
 						}
 					},
