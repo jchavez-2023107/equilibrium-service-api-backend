@@ -22,7 +22,7 @@ const router = Router();
  */
 router.post(
   "/",
-  [validateJWT, validateRoles("USER"), ...createAppointmentValidators, validateFields],
+  [validateJWT, validateRoles("USER","VOLUNTEER","ADMIN"), ...createAppointmentValidators, validateFields],
   createAppointment
 );
 
