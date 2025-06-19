@@ -29,8 +29,25 @@ const isWithinSchedule = (scheduledAt, schedules) => {
 
 export const createAppointment = async (req, res) => {
   try {
-    const userId = req.user.id;
-    const { volunteerId, scheduledAt, reason, notes } = req.body;
+    const requesterId = req.user.id;
+    const requesterRole = req.user.role;
+
+    const {
+      volunteerId,
+      scheduledAt,
+      reason,
+      notes,
+      userId: bodyUserId, // ← puede venir del voluntario
+    } = req.body;
+
+    // Determinar userId: si es USER usa su propio ID, si es VOLUNTEER o ADMIN toma del body
+    const userId = requesterRole === "USER" ? requesterId : bodyUserId;
+
+    // Validar existencia de usuario
+    const targetUser = await User.findById(userId);
+    if (!targetUser || targetUser.role !== "USER") {
+      return res.status(400).json({ message: "Usuario asignado no válido." });
+    }
 
     const volunteer = await User.findById(volunteerId);
     if (!volunteer || volunteer.role !== "VOLUNTEER") {
@@ -46,6 +63,7 @@ export const createAppointment = async (req, res) => {
       return res.status(400).json({ message: "El voluntario no está disponible en ese horario." });
     }
 
+    // Verificar duplicados exactos
     const existing = await Appointment.findOne({
       userId,
       volunteerId,
@@ -55,6 +73,7 @@ export const createAppointment = async (req, res) => {
       return res.status(409).json({ message: "Ya tienes una cita agendada con este voluntario en esa fecha y hora." });
     }
 
+    // Crear la cita
     const appointment = new Appointment({
       userId,
       volunteerId,
@@ -63,9 +82,13 @@ export const createAppointment = async (req, res) => {
       notes,
     });
 
+    // --- AQUI VA LO DE LA MODIFICACIÓN, NO LO CAMBIES ---
     await appointment.save();
+    await appointment.populate([
+      { path: "userId", select: "username profile.displayName" },
+      { path: "volunteerId", select: "username profile.displayName" }
+    ]);
 
-    // Crear notificación
     await createAppointmentNotification(appointment, "CREATED");
 
     // -------- SOCKET.IO: Notificar a usuario y voluntario --------
@@ -76,6 +99,7 @@ export const createAppointment = async (req, res) => {
     }
 
     return res.status(201).json({ message: "Cita creada exitosamente", appointment });
+
   } catch (error) {
     return res.status(500).json({ message: "Error al crear la cita", error: error.message });
   }
