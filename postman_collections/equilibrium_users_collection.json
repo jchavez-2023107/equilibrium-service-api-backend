@@ -1,0 +1,1713 @@
+{
+	"info": {
+		"_postman_id": "de52dc60-cea8-4983-93fe-fca7c82a6e99",
+		"name": "Equilibrium Final API Collection",
+		"description": "Colección final para endpoints de Auth y Users en Equilibrium, lista para consumir sin modificaciones.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "37956952"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var data = JSON.parse(responseBody);\r",
+									"postman.setGlobalVariable(\"token\", data.token)"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "userlogin",
+									"value": "admin",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "admin",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register User (Admin)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "manuel.rivera",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "manuel.rivera@example.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "user",
+									"type": "text"
+								},
+								{
+									"key": "passwordConfirm",
+									"value": "user",
+									"type": "text"
+								},
+								{
+									"key": "profile.displayName",
+									"value": "Manuel Rivera",
+									"type": "text"
+								},
+								{
+									"key": "profile.displayUsername",
+									"value": "manuel.rivera",
+									"type": "text"
+								},
+								{
+									"key": "profile.birthDate",
+									"value": "1995-07-20",
+									"type": "text"
+								},
+								{
+									"key": "profile.bio",
+									"value": "Usuario administrador de prueba",
+									"type": "text"
+								},
+								{
+									"key": "profile.contactNumber",
+									"value": "4123-4567",
+									"type": "text"
+								},
+								{
+									"key": "profile.especialidad",
+									"value": "Usuario",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Test JWT",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/auth/test",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"test"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "LoginUser",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var data = JSON.parse(responseBody);\r",
+									"postman.setGlobalVariable(\"user\", data.token)"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "userlogin",
+									"value": "juanperez",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "user1",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "LoginUser Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var data = JSON.parse(responseBody);\r",
+									"postman.setGlobalVariable(\"token3\", data.token)"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "userlogin",
+									"value": "mariagarcia",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "user1",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "LoginUserVolunter",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var data = JSON.parse(responseBody);\r",
+									"postman.setGlobalVariable(\"volunteer\", data.token)"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "userlogin",
+									"value": "alejandroperez",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "volun",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Create User (Public)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "sevilla_gomez",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "sevilla_gomez@equilibrium.local",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "sevilla",
+									"type": "text"
+								},
+								{
+									"key": "passwordConfirm",
+									"value": "sevilla",
+									"type": "text"
+								},
+								{
+									"key": "profile[displayName]",
+									"value": "Sevilla Gómez",
+									"type": "text"
+								},
+								{
+									"key": "profile[displayUsername]",
+									"value": "sevilla_gomez",
+									"type": "text"
+								},
+								{
+									"key": "profile[birthDate]",
+									"value": "1998-11-05",
+									"type": "text"
+								},
+								{
+									"key": "profile[bio]",
+									"value": "Apasionada de la programación",
+									"type": "text"
+								},
+								{
+									"key": "profile[contactNumber]",
+									"value": "4234-8765",
+									"type": "text"
+								},
+								{
+									"key": "profile[especialidad]",
+									"value": "Programación",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/users",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register Volunteer (Public)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "eliza_mendez",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "eliza_mendez@example.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "volunteer",
+									"type": "text"
+								},
+								{
+									"key": "passwordConfirm",
+									"value": "volunteer",
+									"type": "text"
+								},
+								{
+									"key": "profile[displayName]",
+									"value": "Eliza Méndez",
+									"type": "text"
+								},
+								{
+									"key": "profile[displayUsername]",
+									"value": "eliza.mendez",
+									"type": "text"
+								},
+								{
+									"key": "profile[birthDate]",
+									"value": "1992-02-14",
+									"type": "text"
+								},
+								{
+									"key": "profile[bio]",
+									"value": "Voluntaria entusiasta",
+									"type": "text"
+								},
+								{
+									"key": "profile[contactNumber]",
+									"value": "5123-6789",
+									"type": "text"
+								},
+								{
+									"key": "profile[especialidad]",
+									"value": "Voluntaria",
+									"type": "text"
+								},
+								{
+									"key": "volunteerData[needs][]",
+									"value": "CHAT",
+									"type": "text"
+								},
+								{
+									"key": "volunteerData[schedules][0][day]",
+									"value": "Martes",
+									"type": "text"
+								},
+								{
+									"key": "volunteerData[schedules][0][from]",
+									"value": "10:00",
+									"type": "text"
+								},
+								{
+									"key": "volunteerData[schedules][0][to]",
+									"value": "14:00",
+									"type": "text"
+								},
+								{
+									"key": "volunteerData[university]",
+									"value": "USAC",
+									"type": "text"
+								},
+								{
+									"key": "volunteerData[graduateTerm]",
+									"value": "2021-12",
+									"type": "text"
+								},
+								{
+									"key": "volunteerData[hasVolunteered]",
+									"value": "true",
+									"type": "text"
+								},
+								{
+									"key": "volunteerData[motivation]",
+									"value": "Quiero apoyar proyectos sociales",
+									"type": "text"
+								},
+								{
+									"key": "volunteerData[availability]",
+									"value": "Miércoles 09:00-12:00",
+									"type": "text"
+								},
+								{
+									"key": "volunteerData[linkedIn]",
+									"value": "https://www.linkedin.com/in/eliza.mendez",
+									"type": "text"
+								},
+								{
+									"key": "volunteerData[contactNumber]",
+									"value": "5123-6789",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/users/volunteers",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"volunteers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/users",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Volunteers",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/users/volunteers",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"volunteers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Approve Volunteer",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": []
+						},
+						"url": {
+							"raw": "{{base_url}}/users/{{volunteerId}}/approve",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"{{volunteerId}}",
+								"approve"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/users/684cdfb80d38f6016413a9ee",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"684cdfb80d38f6016413a9ee"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							},
+							{
+								"key": "Authorization",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "profile[bio]",
+									"value": "Actualización de perfil via Postman",
+									"type": "text"
+								},
+								{
+									"key": "profile[contactNumber]",
+									"value": "4234-9876",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/users/{{userId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"{{userId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User (Soft)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/users/{{userId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"{{userId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "UsersErrors",
+			"item": [
+				{
+					"name": "Create User - Short password & Missing passwordConfirm",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "apodo",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "apodo@equilibrium.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "user",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/users",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create User - Invalid username & InvalidEmail",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "joel.nopunto¡",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "joel@nogmail",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "joeluser",
+									"type": "text"
+								},
+								{
+									"key": "passwordConfirm",
+									"value": "joeluser",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/users",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create User - Password Mismatch",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "alejandro",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "alejandrochavez@equilibrium.local",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "alejandro",
+									"type": "text"
+								},
+								{
+									"key": "passwordConfirm",
+									"value": "noalejandro",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/users",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register Volunteer - Missing needs and wrong birthdate",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "vol",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "voluntario@example.com",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "volunteer",
+									"type": "text"
+								},
+								{
+									"key": "passwordConfirm",
+									"value": "volunteer",
+									"type": "text"
+								},
+								{
+									"key": "profile[displayName]",
+									"value": "Vol Error",
+									"type": "text"
+								},
+								{
+									"key": "profile[displayUsername]",
+									"value": "vol.error",
+									"type": "text"
+								},
+								{
+									"key": "profile[birthDate]",
+									"value": "2990-01-01",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/users/volunteers",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"volunteers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register Volunteer - Invalid LinkedIn Copy",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "email",
+									"value": "voluntario2@equilibrium.com",
+									"type": "text"
+								},
+								{
+									"key": "username",
+									"value": "voluntario2",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "volunteer",
+									"type": "text"
+								},
+								{
+									"key": "passwordConfirm",
+									"value": "volunteer",
+									"type": "text"
+								},
+								{
+									"key": "profile[displayName]",
+									"value": "Error Vol2",
+									"type": "text"
+								},
+								{
+									"key": "profile[displayUsername]",
+									"value": "error2.vol",
+									"type": "text"
+								},
+								{
+									"key": "profile[birthDate]",
+									"value": "1995-07-07",
+									"type": "text"
+								},
+								{
+									"key": "profile[contactNumber]",
+									"value": "4123-4567",
+									"type": "text"
+								},
+								{
+									"key": "volunteerData[needs][]",
+									"value": "EMERGENCY",
+									"type": "text"
+								},
+								{
+									"key": "volunteerData[linkedIn]",
+									"value": "htt://linkedin.com/bad",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/users/volunteers",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"volunteers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register Volunteer - Invalid LinkedIn Copy",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "email",
+									"value": "voluntario2@equilibrium.com",
+									"type": "text"
+								},
+								{
+									"key": "username",
+									"value": "voluntario2",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "volunteer",
+									"type": "text"
+								},
+								{
+									"key": "passwordConfirm",
+									"value": "volunteer",
+									"type": "text"
+								},
+								{
+									"key": "profile[displayName]",
+									"value": "Error Vol2",
+									"type": "text"
+								},
+								{
+									"key": "profile[displayUsername]",
+									"value": "error2.vol",
+									"type": "text"
+								},
+								{
+									"key": "profile[birthDate]",
+									"value": "1995-07-07",
+									"type": "text"
+								},
+								{
+									"key": "profile[contactNumber]",
+									"value": "4123-4567",
+									"type": "text"
+								},
+								{
+									"key": "volunteerData[needs][]",
+									"value": "EMERGENCY",
+									"type": "text"
+								},
+								{
+									"key": "volunteerData[linkedIn]",
+									"value": "htt://linkedin.com/bad",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/users/volunteers",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"volunteers"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Chat",
+			"item": [
+				{
+					"name": "Create Chat",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI2ODUzNjJmOGJhMjZkNWNhMjc4NjRhMjUiLCJ1c2VybmFtZSI6Imp1YW5wZXJleiIsInJvbGUiOiJVU0VSIiwiZW1haWwiOiJqdWFucGVyZXpAZXF1aWxpYnJpdW0ubG9jYWwiLCJpYXQiOjE3NTAyOTU2ODF9.mNOnd0_Oj3ge0DqKNrbPedGK-kzIoiXCq-T3PMT2Vus",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "userId",
+									"value": "685362f8ba26d5ca27864a25",
+									"type": "text"
+								},
+								{
+									"key": "volunteerId",
+									"value": "685362f8ba26d5ca27864a23",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/chats",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"chats"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add message",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI2ODUzNjJmOGJhMjZkNWNhMjc4NjRhMjUiLCJ1c2VybmFtZSI6Imp1YW5wZXJleiIsInJvbGUiOiJVU0VSIiwiZW1haWwiOiJqdWFucGVyZXpAZXF1aWxpYnJpdW0ubG9jYWwiLCJpYXQiOjE3NTAyOTU2ODF9.mNOnd0_Oj3ge0DqKNrbPedGK-kzIoiXCq-T3PMT2Vus",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "text",
+									"value": "Hola, necesito ayuda con mi caso.1111",
+									"type": "text"
+								},
+								{
+									"key": "isEmergency",
+									"value": "true",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:2636/api/v1/chats/685364f1ba26d5ca27864a5c/message",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "2636",
+							"path": [
+								"api",
+								"v1",
+								"chats",
+								"685364f1ba26d5ca27864a5c",
+								"message"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getChatsAdmin",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": []
+						},
+						"url": {
+							"raw": "{{base_url}}/chats",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"chats"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getChatUser",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token1}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "text",
+									"value": "Hola, necesito ayuda con mi caso.1111",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "isEmergency",
+									"value": "true",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/chats",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"chats"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getChatVolunteer",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token2}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "text",
+									"value": "Hola, necesito ayuda con mi caso.1111",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "isEmergency",
+									"value": "true",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/chats",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"chats"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get ChatId",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI2ODUzNjJmOGJhMjZkNWNhMjc4NjRhMjUiLCJ1c2VybmFtZSI6Imp1YW5wZXJleiIsInJvbGUiOiJVU0VSIiwiZW1haWwiOiJqdWFucGVyZXpAZXF1aWxpYnJpdW0ubG9jYWwiLCJpYXQiOjE3NTAzMDI1NDJ9.m5AkLE4ST80gdxnRE20R5reaFFv_rxowdtGfVKzBQwI",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "text",
+									"value": "Hola, necesito ayuda con mi caso.1111",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "isEmergency",
+									"value": "true",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:2636/api/v1/chats/685364f1ba26d5ca27864a5c",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "2636",
+							"path": [
+								"api",
+								"v1",
+								"chats",
+								"685364f1ba26d5ca27864a5c"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Close Chat",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "text",
+									"value": "Hola, necesito ayuda con mi caso.1111",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "isEmergency",
+									"value": "true",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/chats/684d3a836ef58a0e7ea391b1/close",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"chats",
+								"684d3a836ef58a0e7ea391b1",
+								"close"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "sessionHistory",
+			"item": [
+				{
+					"name": "New Request",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Emergencias",
+			"item": [
+				{
+					"name": "BottonEmergencia",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI2ODUzNjJmOGJhMjZkNWNhMjc4NjRhMjUiLCJ1c2VybmFtZSI6Imp1YW5wZXJleiIsInJvbGUiOiJVU0VSIiwiZW1haWwiOiJqdWFucGVyZXpAZXF1aWxpYnJpdW0ubG9jYWwiLCJpYXQiOjE3NTAzMDQ4MDB9.qi5MOgbfxjNsBWS70XfuMxqfv5k78bJ3HY6UIfX-DWU",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": []
+						},
+						"url": {
+							"raw": "http://localhost:2636/api/v1/chats/trigger-emergency",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "2636",
+							"path": [
+								"api",
+								"v1",
+								"chats",
+								"trigger-emergency"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Aceptar Emergencia",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI2ODUzNjJmOGJhMjZkNWNhMjc4NjRhMjMiLCJ1c2VybmFtZSI6ImFsZWphbmRyb3BlcmV6Iiwicm9sZSI6IlZPTFVOVEVFUiIsImVtYWlsIjoiYWxlamFuZHJvcGVyZXpAZXF1aWxpYnJpdW0ubG9jYWwiLCJpYXQiOjE3NTAzMDQ4OTR9.h3FLDHVxcpxyGkhPXpJzPuHsmHuwtPUvIIaue07l5Iw",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:2636/api/v1/chats/685362f8ba26d5ca27864a49/accept-emergency",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "2636",
+							"path": [
+								"api",
+								"v1",
+								"chats",
+								"685362f8ba26d5ca27864a49",
+								"accept-emergency"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get Notificaciones ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI2ODUzNjJmOGJhMjZkNWNhMjc4NjRhMjUiLCJ1c2VybmFtZSI6Imp1YW5wZXJleiIsInJvbGUiOiJVU0VSIiwiZW1haWwiOiJqdWFucGVyZXpAZXF1aWxpYnJpdW0ubG9jYWwiLCJpYXQiOjE3NTAzMDQ4MDB9.qi5MOgbfxjNsBWS70XfuMxqfv5k78bJ3HY6UIfX-DWU",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:2636/api/v1/notifications",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "2636",
+							"path": [
+								"api",
+								"v1",
+								"notifications"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Leer Notificaciones",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI2ODUzNjJmOGJhMjZkNWNhMjc4NjRhMjMiLCJ1c2VybmFtZSI6ImFsZWphbmRyb3BlcmV6Iiwicm9sZSI6IlZPTFVOVEVFUiIsImVtYWlsIjoiYWxlamFuZHJvcGVyZXpAZXF1aWxpYnJpdW0ubG9jYWwiLCJpYXQiOjE3NTAzMDQ4OTR9.h3FLDHVxcpxyGkhPXpJzPuHsmHuwtPUvIIaue07l5Iw",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:2636/api/v1/notifications/685388abc36dc9b33197be40/read",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "2636",
+							"path": [
+								"api",
+								"v1",
+								"notifications",
+								"685388abc36dc9b33197be40",
+								"read"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Enviar Emergencia",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI2ODUzNjJmOGJhMjZkNWNhMjc4NjRhMjUiLCJ1c2VybmFtZSI6Imp1YW5wZXJleiIsInJvbGUiOiJVU0VSIiwiZW1haWwiOiJqdWFucGVyZXpAZXF1aWxpYnJpdW0ubG9jYWwiLCJpYXQiOjE3NTAzMDQ4MDB9.qi5MOgbfxjNsBWS70XfuMxqfv5k78bJ3HY6UIfX-DWU",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:2636/api/v1/notifications/emergency-alert",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "2636",
+							"path": [
+								"api",
+								"v1",
+								"notifications",
+								"emergency-alert"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Aceptar Emergencia Voluntario",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:2636/api/v1/notifications/take/685388abc36dc9b33197be40",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "2636",
+							"path": [
+								"api",
+								"v1",
+								"notifications",
+								"take",
+								"685388abc36dc9b33197be40"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Citas",
+			"item": [
+				{
+					"name": "Agendar Cita",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{user}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "volunteerId",
+									"value": "685362f8ba26d5ca27864a23",
+									"type": "text"
+								},
+								{
+									"key": "scheduledAt",
+									"value": "2025-07-01T15:00:00.000Z",
+									"type": "text"
+								},
+								{
+									"key": "reason",
+									"value": "Necesito apoyo psicológico",
+									"type": "text"
+								},
+								{
+									"key": "notes",
+									"value": "Preferiblemente en la tarde",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:2636/api/v1/appointments",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "2636",
+							"path": [
+								"api",
+								"v1",
+								"appointments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "bearer {{user}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:2636/api/v1/appointments",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "2636",
+							"path": [
+								"api",
+								"v1",
+								"appointments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetId",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{user}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:2636/api/v1/appointments/68539889e00cd2254de376a9",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "2636",
+							"path": [
+								"api",
+								"v1",
+								"appointments",
+								"68539889e00cd2254de376a9"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "New Request",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{user}}",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "Authorization",
+								"value": "bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI2ODUzNjJmOGJhMjZkNWNhMjc4NjRhMjciLCJ1c2VybmFtZSI6Im1hcmlhZ2FyY2lhIiwicm9sZSI6IlVTRVIiLCJlbWFpbCI6Im1hcmlhZ2FyY2lhQGVxdWlsaWJyaXVtLmxvY2FsIiwiaWF0IjoxNzUwMzA5MjcxfQ.6k3MuG_uy3x7BY7uB8WWQpysFDBoJl4O1Nf0qCrKp-g",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:2636/api/v1/appointments/68539991e00cd2254de376c4",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "2636",
+							"path": [
+								"api",
+								"v1",
+								"appointments",
+								"68539991e00cd2254de376c4"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:2636/api/v1"
+		},
+		{
+			"key": "token",
+			"value": ""
+		},
+		{
+			"key": "token1",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "token2",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
