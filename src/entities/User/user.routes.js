@@ -47,7 +47,7 @@ router.post(
 /**
  * @route   GET /api/v1/users
  * @desc    Obtener lista de todos los usuarios
- * @access  ADMIN
+ * @access  ADMIN, VOLUNTEER Y USER
  */
 router.get(
   "/",

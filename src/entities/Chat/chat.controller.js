@@ -47,6 +47,13 @@ export const createChat = async (req, res, next) => {
       { path: "volunteerId", select: "_id username" }
     ]);
 
+    // -------- SOCKET.IO: Notifica a ambos usuarios que hay nuevo chat --------
+    const io = req.app.locals.io;
+    if (io) {
+      io.to(userId.toString()).emit("chat:new", newChat);
+      io.to(volunteerId.toString()).emit("chat:new", newChat);
+    }
+
     res.status(201).json({ success: true, chat: newChat });
   } catch (err) {
     next(err);
@@ -94,6 +101,17 @@ export const addMessageToChat = async (req, res, next) => {
       { path: "userId", select: "_id username" },
       { path: "volunteerId", select: "_id username" }
     ]);
+
+    // -------- SOCKET.IO: Notifica a ambos usuarios del nuevo mensaje --------
+    const io = req.app.locals.io;
+    if (io) {
+      io.to(chat.userId.toString()).emit("chat:message", { chatId: chat._id, message: chat.messages.at(-1) });
+      io.to(chat.volunteerId.toString()).emit("chat:message", { chatId: chat._id, message: chat.messages.at(-1) });
+      // Si hay emergencyTakenBy, notifícalo también
+      if (chat.emergencyTakenBy && chat.emergencyTakenBy.toString() !== chat.volunteerId.toString()) {
+        io.to(chat.emergencyTakenBy.toString()).emit("chat:message", { chatId: chat._id, message: chat.messages.at(-1) });
+      }
+    }
 
     res.status(200).json({ success: true, chat });
   } catch (err) {

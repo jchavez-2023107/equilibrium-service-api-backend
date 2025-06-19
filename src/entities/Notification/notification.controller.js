@@ -2,7 +2,8 @@ import Notification from "../Notification/notification.model.js";
 import User from "../User/user.model.js";
 import { handleEmergencyChatAfterTake } from "../Chat/chat.controller.js";
 
-export const createMessageNotification = async ({ chat, senderId, isEmergency }) => {
+// Notificación de nuevo mensaje en chat
+export const createMessageNotification = async ({ chat, senderId, isEmergency, req = null }) => {
   const receiverId =
     chat.userId.toString() === senderId ? chat.volunteerId : chat.userId;
 
@@ -20,6 +21,11 @@ export const createMessageNotification = async ({ chat, senderId, isEmergency })
   });
 
   await notification.save();
+
+  // -------- SOCKET.IO: Notifica al destinatario en tiempo real --------
+  if (req && req.app && req.app.locals.io) {
+    req.app.locals.io.to(receiverId.toString()).emit("notification:new", notification);
+  }
 };
 
 // Notificación general a voluntarios que aceptan emergencias
@@ -40,11 +46,16 @@ export const sendGeneralEmergencyNotification = async (req, res, next) => {
       data: { requesterId: userId, taken: false },
     }));
 
-    await Notification.insertMany(notifications);
+    const inserted = await Notification.insertMany(notifications);
 
-    res
-      .status(200)
-      .json({ success: true, message: "Notificaciones enviadas a voluntarios" });
+    // -------- SOCKET.IO: Notifica a todos los voluntarios EMERGENCY --------
+    if (req.app && req.app.locals.io) {
+      for (const n of inserted) {
+        req.app.locals.io.to(n.userId.toString()).emit("notification:new", n);
+      }
+    }
+
+    res.status(200).json({ success: true, message: "Notificaciones enviadas a voluntarios" });
   } catch (err) {
     next(err);
   }
@@ -83,6 +94,11 @@ export const takeEmergencyNotification = async (req, res, next) => {
     // Crear o actualizar chat con el voluntario que tomó la emergencia
     await handleEmergencyChatAfterTake(notification.data.requesterId, volunteerId);
 
+    // -------- SOCKET.IO: Notifica al voluntario que tomó la emergencia --------
+    if (req.app && req.app.locals.io) {
+      req.app.locals.io.to(volunteerId.toString()).emit("notification:emergency_taken", notification);
+    }
+
     res.status(200).json({ success: true, message: "Emergencia tomada con éxito" });
   } catch (err) {
     next(err);
@@ -119,13 +135,18 @@ export const markNotificationAsRead = async (req, res, next) => {
     notification.read = true;
     await notification.save();
 
+    // -------- SOCKET.IO: Notifica cambio de estado de notificación --------
+    if (req.app && req.app.locals.io) {
+      req.app.locals.io.to(userId.toString()).emit("notification:read", notification);
+    }
+
     res.json({ success: true, notification });
   } catch (err) {
     next(err);
   }
 };
 
-export const createEmergencyAlertNotification = async (chat, requesterId) => {
+export const createEmergencyAlertNotification = async (chat, requesterId, req = null) => {
   const volunteers = await User.find(
     { role: "VOLUNTEER", status: "ACTIVE", "volunteerData.needs": "EMERGENCY" },
     "_id"
@@ -139,21 +160,33 @@ export const createEmergencyAlertNotification = async (chat, requesterId) => {
     data: { chatId: chat._id, requesterId, taken: false },
   }));
 
-  await Notification.insertMany(notifications);
+  const inserted = await Notification.insertMany(notifications);
+
+  // -------- SOCKET.IO: Notifica a todos los voluntarios EMERGENCY --------
+  if (req && req.app && req.app.locals.io) {
+    for (const n of inserted) {
+      req.app.locals.io.to(n.userId.toString()).emit("notification:new", n);
+    }
+  }
 };
 
-export const notifyEmergencyTaken = async (chatId, volunteerId) => {
+export const notifyEmergencyTaken = async (chatId, volunteerId, req = null) => {
   await Notification.deleteMany({
     type: "EMERGENCY_ALERT",
     "data.chatId": chatId,
     userId: { $ne: volunteerId },
   });
 
-  await Notification.create({
+  const notification = await Notification.create({
     userId: volunteerId,
     type: "EMERGENCY_TAKEN",
     title: "Has tomado la emergencia",
     body: "Ahora estás a cargo de esta emergencia.",
     data: { chatId },
   });
+
+  // -------- SOCKET.IO: Notifica solo al voluntario que tomó la emergencia --------
+  if (req && req.app && req.app.locals.io) {
+    req.app.locals.io.to(volunteerId.toString()).emit("notification:emergency_taken", notification);
+  }
 };

@@ -66,6 +66,14 @@ export const createAppointment = async (req, res) => {
     });
 
     await appointment.save();
+
+    // -------- SOCKET.IO: Notifica al usuario y al voluntario de la nueva cita --------
+    const io = req.app.locals.io;
+    if (io) {
+      io.to(userId.toString()).emit("appointment:new", { appointment });
+      io.to(volunteerId.toString()).emit("appointment:new", { appointment });
+    }
+
     return res.status(201).json({ message: "Cita creada exitosamente", appointment });
   } catch (error) {
     return res.status(500).json({ message: "Error al crear la cita", error: error.message });
@@ -224,6 +232,14 @@ export const deleteAppointment = async (req, res) => {
       (role === "USER" && appointment.userId.toString() === userId)
     ) {
       await appointment.deleteOne();
+
+      // -------- SOCKET.IO: Notifica al usuario y al voluntario de la eliminación --------
+      const io = req.app.locals.io;
+      if (io) {
+        io.to(appointment.userId.toString()).emit("appointment:deleted", { appointmentId: appointment._id });
+        io.to(appointment.volunteerId.toString()).emit("appointment:deleted", { appointmentId: appointment._id });
+      }
+
       return res.json({ message: "Cita eliminada exitosamente", appointment });
     } else {
       return res.status(403).json({ message: "No tienes permiso para eliminar esta cita." });
