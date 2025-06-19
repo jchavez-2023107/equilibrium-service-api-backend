@@ -1,6 +1,8 @@
 import Appointment from "./citas.model.js";
 import User from "../User/user.model.js";
 import { Types } from "mongoose";
+import { createAppointmentNotification } from "../Notification/notification.controller.js";
+
 
 // Helper para verificar si fecha está dentro del horario disponible del voluntario
 const isWithinSchedule = (scheduledAt, schedules) => {
@@ -24,7 +26,7 @@ const isWithinSchedule = (scheduledAt, schedules) => {
   return false;
 };
 
-// Crear una nueva cita
+
 export const createAppointment = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -67,18 +69,62 @@ export const createAppointment = async (req, res) => {
 
     await appointment.save();
 
-    // -------- SOCKET.IO: Notifica al usuario y al voluntario de la nueva cita --------
-    const io = req.app.locals.io;
-    if (io) {
-      io.to(userId.toString()).emit("appointment:new", { appointment });
-      io.to(volunteerId.toString()).emit("appointment:new", { appointment });
-    }
+    // Crear notificación
+    await createAppointmentNotification(appointment, "CREATED");
 
     return res.status(201).json({ message: "Cita creada exitosamente", appointment });
   } catch (error) {
     return res.status(500).json({ message: "Error al crear la cita", error: error.message });
   }
 };
+
+// Crear una nueva cita
+// export const createAppointment = async (req, res) => {
+//   try {
+//     const userId = req.user.id;
+//     const { volunteerId, scheduledAt, reason, notes } = req.body;
+
+//     // Validar voluntario
+//     const volunteer = await User.findById(volunteerId);
+//     if (!volunteer || volunteer.role !== "VOLUNTEER") {
+//       return res.status(404).json({ message: "Voluntario no válido o no encontrado." });
+//     }
+
+//     // Validar fecha futura
+//     const scheduledDate = new Date(scheduledAt);
+//     if (isNaN(scheduledDate.getTime()) || scheduledDate <= new Date()) {
+//       return res.status(400).json({ message: "La fecha programada debe ser una fecha futura válida." });
+//     }
+
+//     // Validar disponibilidad del voluntario
+//     if (!isWithinSchedule(scheduledAt, volunteer.volunteerData.schedules)) {
+//       return res.status(400).json({ message: "El voluntario no está disponible en ese horario." });
+//     }
+
+//     // Evitar cita duplicada para mismo usuario, voluntario y fecha exacta
+//     const existing = await Appointment.findOne({
+//       userId,
+//       volunteerId,
+//       scheduledAt: scheduledDate
+//     });
+//     if (existing) {
+//       return res.status(409).json({ message: "Ya tienes una cita agendada con este voluntario en esa fecha y hora." });
+//     }
+
+//     const appointment = new Appointment({
+//       userId,
+//       volunteerId,
+//       scheduledAt: scheduledDate,
+//       reason,
+//       notes,
+//     });
+
+//     await appointment.save();
+//     return res.status(201).json({ message: "Cita creada exitosamente", appointment });
+//   } catch (error) {
+//     return res.status(500).json({ message: "Error al crear la cita", error: error.message });
+//   }
+// };
 
 // Obtener citas con filtros avanzados y paginación
 export const getAppointments = async (req, res) => {
@@ -207,7 +253,7 @@ export const getAppointmentById = async (req, res) => {
   }
 };
 
-// Eliminar una cita por ID
+
 export const deleteAppointment = async (req, res) => {
   try {
     const { id } = req.params;
@@ -223,9 +269,6 @@ export const deleteAppointment = async (req, res) => {
     }
 
     // Validar permisos:
-    // ADMIN puede eliminar cualquier cita
-    // VOLUNTEER solo puede eliminar citas donde es voluntario
-    // USER solo puede eliminar citas donde es usuario
     if (
       role === "ADMIN" ||
       (role === "VOLUNTEER" && appointment.volunteerId.toString() === userId) ||
@@ -233,12 +276,8 @@ export const deleteAppointment = async (req, res) => {
     ) {
       await appointment.deleteOne();
 
-      // -------- SOCKET.IO: Notifica al usuario y al voluntario de la eliminación --------
-      const io = req.app.locals.io;
-      if (io) {
-        io.to(appointment.userId.toString()).emit("appointment:deleted", { appointmentId: appointment._id });
-        io.to(appointment.volunteerId.toString()).emit("appointment:deleted", { appointmentId: appointment._id });
-      }
+      // Crear notificación
+      await createAppointmentNotification(appointment, "CANCELED");
 
       return res.json({ message: "Cita eliminada exitosamente", appointment });
     } else {
@@ -248,3 +287,38 @@ export const deleteAppointment = async (req, res) => {
     return res.status(500).json({ message: "Error al eliminar la cita", error: error.message });
   }
 };
+
+
+// // Eliminar una cita por ID
+// export const deleteAppointment = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const { id: userId, role } = req.user;
+
+//     if (!Types.ObjectId.isValid(id)) {
+//       return res.status(400).json({ message: "ID inválido" });
+//     }
+
+//     const appointment = await Appointment.findById(id);
+//     if (!appointment) {
+//       return res.status(404).json({ message: "Cita no encontrada" });
+//     }
+
+//     // Validar permisos:
+//     // ADMIN puede eliminar cualquier cita
+//     // VOLUNTEER solo puede eliminar citas donde es voluntario
+//     // USER solo puede eliminar citas donde es usuario
+//     if (
+//       role === "ADMIN" ||
+//       (role === "VOLUNTEER" && appointment.volunteerId.toString() === userId) ||
+//       (role === "USER" && appointment.userId.toString() === userId)
+//     ) {
+//       await appointment.deleteOne();
+//       return res.json({ message: "Cita eliminada exitosamente", appointment });
+//     } else {
+//       return res.status(403).json({ message: "No tienes permiso para eliminar esta cita." });
+//     }
+//   } catch (error) {
+//     return res.status(500).json({ message: "Error al eliminar la cita", error: error.message });
+//   }
+// };

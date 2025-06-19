@@ -4,9 +4,9 @@ import {
   addMessageToChat,
   getChats,
   getChatById,
-  closeChat,
-  triggerEmergency,
-  acceptEmergency
+  closeChat
+  //triggerEmergency,
+  //acceptEmergency
 } from "./chat.controller.js";
 
 import { validateJWT } from "../../middlewares/validate.jwt.js";
@@ -18,9 +18,9 @@ import {
   idParamValidator,
   addMessageValidators,
   chatExistAndUserInvolved,
-  chatIsOpenValidator,
-  limitEmergencyTriggerValidator,
-  canTakeEmergencies 
+  chatIsOpenValidator
+  //limitEmergencyTriggerValidator,
+  //canTakeEmergencies 
 } from "../../validators/chat.validators.js";
 
 const router = Router();
@@ -84,28 +84,28 @@ router.patch(
   closeChat
 );
 
-/**
- * Reportar una emergencia (solo USER o ADMIN)
- */
-router.post(
-  "/trigger-emergency",
-  validateJWT,
-  validateRoles("USER", "ADMIN"),
-  limitEmergencyTriggerValidator,
-  triggerEmergency
-);
+// /**
+//  * Reportar una emergencia (solo USER o ADMIN)
+//  */
+// router.post(
+//   "/trigger-emergency",
+//   validateJWT,
+//   validateRoles("USER", "ADMIN"),
+//   limitEmergencyTriggerValidator,
+//   triggerEmergency
+// );
 
-/**
- * Aceptar una emergencia (solo VOLUNTEER o ADMIN)
- */
-router.post(
-  "/:id/accept-emergency",
-  validateJWT,
-  validateRoles("VOLUNTEER", "ADMIN"),
-  canTakeEmergencies,
-  idParamValidator,
-  validateFields,
-  acceptEmergency
-);
+// /**
+//  * Aceptar una emergencia (solo VOLUNTEER o ADMIN)
+//  */
+// router.post(
+//   "/:id/accept-emergency",
+//   validateJWT,
+//   validateRoles("VOLUNTEER", "ADMIN"),
+//   canTakeEmergencies,
+//   idParamValidator,
+//   validateFields,
+//   acceptEmergency
+// );
 
 export default router;

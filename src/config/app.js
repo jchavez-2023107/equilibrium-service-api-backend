@@ -4,9 +4,13 @@ import express from "express";
 import morgan from "morgan";
 import helmet from "helmet";
 import cors from "cors";
-import { limiter } from "../middlewares/rate.limit.js";
-import router from "../routes/index.js";
 
+import { limiter } from "../middlewares/rate.limit.js"; 
+import router from "../routes/index.js"; // Ahora importamos el router general desde src/routes/index.js
+
+/*
+ * Configura middlewares globales.
+ */
 function configs(app) {
   app.use(morgan("dev"));
   app.use(helmet());
@@ -16,10 +20,16 @@ function configs(app) {
   app.use(limiter);
 }
 
+/*
+ * Carga rutas de la API bajo prefijo /api/v1
+ */
 function loadRoutes(app) {
   app.use("/api/v1", router);
 }
 
+/*
+ * Maneja errores que lleguen con next(error)
+ */
 function errorHandler(err, req, res, next) {
   console.error("❌ Error capturado:", err);
 
@@ -53,22 +63,32 @@ function errorHandler(err, req, res, next) {
   });
 }
 
-// NUEVO: Exporta una función para crear app (no lo levantes aquí)
-export const createApp = () => {
+/*
+ * Inicializa Express: middlewares, rutas, 404 y handler de errores.
+ */
+export const initServer = () => {
   const app = express();
   const env = process.env.NODE_ENV || "development";
   console.log(`🛠️ Modo actual: ${env}`);
 
-  configs(app);
-  loadRoutes(app);
+  try {
+    configs(app);
+    loadRoutes(app);
 
-  // 404 para cualquier ruta no encontrada
-  app.use((req, res) => {
-    res.status(404).json({ message: "Ruta no encontrada" });
-  });
+    // 404 para cualquier ruta no encontrada
+    app.use((req, res) => {
+      res.status(404).json({ message: "Ruta no encontrada" });
+    });
 
-  // Handler de errores
-  app.use(errorHandler);
+    // Handler de errores
+    app.use(errorHandler);
 
-  return app;
+    const port = process.env.PORT || 2636;
+    app.listen(port, () => {
+      console.log(`✅ Server running on port ${port}`);
+    });
+  } catch (err) {
+    console.error("❌ Server init failed:", err);
+    process.exit(1);
+  }
 };

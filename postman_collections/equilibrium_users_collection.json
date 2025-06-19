@@ -1052,7 +1052,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI2ODUzNjJmOGJhMjZkNWNhMjc4NjRhMjUiLCJ1c2VybmFtZSI6Imp1YW5wZXJleiIsInJvbGUiOiJVU0VSIiwiZW1haWwiOiJqdWFucGVyZXpAZXF1aWxpYnJpdW0ubG9jYWwiLCJpYXQiOjE3NTAyOTU2ODF9.mNOnd0_Oj3ge0DqKNrbPedGK-kzIoiXCq-T3PMT2Vus",
+								"value": "Bearer {{user}}",
 								"type": "text"
 							}
 						],
@@ -1061,12 +1061,12 @@
 							"urlencoded": [
 								{
 									"key": "userId",
-									"value": "685362f8ba26d5ca27864a25",
+									"value": "6853d3d8c9cafcca1e3eff53",
 									"type": "text"
 								},
 								{
 									"key": "volunteerId",
-									"value": "685362f8ba26d5ca27864a23",
+									"value": "6853d3d8c9cafcca1e3eff51",
 									"type": "text"
 								}
 							]
@@ -1090,7 +1090,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI2ODUzNjJmOGJhMjZkNWNhMjc4NjRhMjUiLCJ1c2VybmFtZSI6Imp1YW5wZXJleiIsInJvbGUiOiJVU0VSIiwiZW1haWwiOiJqdWFucGVyZXpAZXF1aWxpYnJpdW0ubG9jYWwiLCJpYXQiOjE3NTAyOTU2ODF9.mNOnd0_Oj3ge0DqKNrbPedGK-kzIoiXCq-T3PMT2Vus",
+								"value": "Bearer {{user}}",
 								"type": "text"
 							}
 						],
@@ -1110,7 +1110,7 @@
 							]
 						},
 						"url": {
-							"raw": "http://localhost:2636/api/v1/chats/685364f1ba26d5ca27864a5c/message",
+							"raw": "http://localhost:2636/api/v1/chats/6853d6d4c9cafcca1e3effbf/message",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -1120,7 +1120,7 @@
 								"api",
 								"v1",
 								"chats",
-								"685364f1ba26d5ca27864a5c",
+								"6853d6d4c9cafcca1e3effbf",
 								"message"
 							]
 						}
@@ -1167,7 +1167,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "{{token1}}",
+								"value": "Bearer {{user}}",
 								"type": "text"
 							}
 						],
@@ -1210,7 +1210,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "{{token2}}",
+								"value": " Bearer {{token2}}",
 								"type": "text"
 							}
 						],
@@ -1358,7 +1358,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI2ODUzNjJmOGJhMjZkNWNhMjc4NjRhMjUiLCJ1c2VybmFtZSI6Imp1YW5wZXJleiIsInJvbGUiOiJVU0VSIiwiZW1haWwiOiJqdWFucGVyZXpAZXF1aWxpYnJpdW0ubG9jYWwiLCJpYXQiOjE3NTAzMDQ4MDB9.qi5MOgbfxjNsBWS70XfuMxqfv5k78bJ3HY6UIfX-DWU",
+								"value": "Bearer {{user}}",
 								"type": "text"
 							}
 						],
@@ -1367,7 +1367,7 @@
 							"urlencoded": []
 						},
 						"url": {
-							"raw": "http://localhost:2636/api/v1/chats/trigger-emergency",
+							"raw": "http://localhost:2636/api/v1/notifications/emergency",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -1376,50 +1376,21 @@
 							"path": [
 								"api",
 								"v1",
-								"chats",
-								"trigger-emergency"
+								"notifications",
+								"emergency"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Aceptar Emergencia",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI2ODUzNjJmOGJhMjZkNWNhMjc4NjRhMjMiLCJ1c2VybmFtZSI6ImFsZWphbmRyb3BlcmV6Iiwicm9sZSI6IlZPTFVOVEVFUiIsImVtYWlsIjoiYWxlamFuZHJvcGVyZXpAZXF1aWxpYnJpdW0ubG9jYWwiLCJpYXQiOjE3NTAzMDQ4OTR9.h3FLDHVxcpxyGkhPXpJzPuHsmHuwtPUvIIaue07l5Iw",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "http://localhost:2636/api/v1/chats/685362f8ba26d5ca27864a49/accept-emergency",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "2636",
-							"path": [
-								"api",
-								"v1",
-								"chats",
-								"685362f8ba26d5ca27864a49",
-								"accept-emergency"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "get Notificaciones ID",
+					"name": "Get Emergencia",
 					"request": {
 						"method": "GET",
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI2ODUzNjJmOGJhMjZkNWNhMjc4NjRhMjUiLCJ1c2VybmFtZSI6Imp1YW5wZXJleiIsInJvbGUiOiJVU0VSIiwiZW1haWwiOiJqdWFucGVyZXpAZXF1aWxpYnJpdW0ubG9jYWwiLCJpYXQiOjE3NTAzMDQ4MDB9.qi5MOgbfxjNsBWS70XfuMxqfv5k78bJ3HY6UIfX-DWU",
+								"value": "Bearer {{volunteer}}",
 								"type": "text"
 							}
 						],
@@ -1440,18 +1411,18 @@
 					"response": []
 				},
 				{
-					"name": "Leer Notificaciones",
+					"name": "Aceptar Emergencia",
 					"request": {
-						"method": "PUT",
+						"method": "PATCH",
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI2ODUzNjJmOGJhMjZkNWNhMjc4NjRhMjMiLCJ1c2VybmFtZSI6ImFsZWphbmRyb3BlcmV6Iiwicm9sZSI6IlZPTFVOVEVFUiIsImVtYWlsIjoiYWxlamFuZHJvcGVyZXpAZXF1aWxpYnJpdW0ubG9jYWwiLCJpYXQiOjE3NTAzMDQ4OTR9.h3FLDHVxcpxyGkhPXpJzPuHsmHuwtPUvIIaue07l5Iw",
+								"value": "bearer {{volunteer}}",
 								"type": "text"
 							}
 						],
 						"url": {
-							"raw": "http://localhost:2636/api/v1/notifications/685388abc36dc9b33197be40/read",
+							"raw": "http://localhost:2636/api/v1/notifications/emergency/6853db26bdbc5a69ca54675d/accept",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -1461,59 +1432,9 @@
 								"api",
 								"v1",
 								"notifications",
-								"685388abc36dc9b33197be40",
-								"read"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Enviar Emergencia",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI2ODUzNjJmOGJhMjZkNWNhMjc4NjRhMjUiLCJ1c2VybmFtZSI6Imp1YW5wZXJleiIsInJvbGUiOiJVU0VSIiwiZW1haWwiOiJqdWFucGVyZXpAZXF1aWxpYnJpdW0ubG9jYWwiLCJpYXQiOjE3NTAzMDQ4MDB9.qi5MOgbfxjNsBWS70XfuMxqfv5k78bJ3HY6UIfX-DWU",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "http://localhost:2636/api/v1/notifications/emergency-alert",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "2636",
-							"path": [
-								"api",
-								"v1",
-								"notifications",
-								"emergency-alert"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Aceptar Emergencia Voluntario",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:2636/api/v1/notifications/take/685388abc36dc9b33197be40",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "2636",
-							"path": [
-								"api",
-								"v1",
-								"notifications",
-								"take",
-								"685388abc36dc9b33197be40"
+								"emergency",
+								"6853db26bdbc5a69ca54675d",
+								"accept"
 							]
 						}
 					},
@@ -1540,7 +1461,7 @@
 							"urlencoded": [
 								{
 									"key": "volunteerId",
-									"value": "685362f8ba26d5ca27864a23",
+									"value": "6853d3d8c9cafcca1e3eff51",
 									"type": "text"
 								},
 								{
@@ -1639,17 +1560,17 @@
 							{
 								"key": "Authorization",
 								"value": "Bearer {{user}}",
-								"type": "text",
-								"disabled": true
+								"type": "text"
 							},
 							{
 								"key": "Authorization",
 								"value": "bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI2ODUzNjJmOGJhMjZkNWNhMjc4NjRhMjciLCJ1c2VybmFtZSI6Im1hcmlhZ2FyY2lhIiwicm9sZSI6IlVTRVIiLCJlbWFpbCI6Im1hcmlhZ2FyY2lhQGVxdWlsaWJyaXVtLmxvY2FsIiwiaWF0IjoxNzUwMzA5MjcxfQ.6k3MuG_uy3x7BY7uB8WWQpysFDBoJl4O1Nf0qCrKp-g",
-								"type": "text"
+								"type": "text",
+								"disabled": true
 							}
 						],
 						"url": {
-							"raw": "http://localhost:2636/api/v1/appointments/68539991e00cd2254de376c4",
+							"raw": "http://localhost:2636/api/v1/appointments/6853d439c9cafcca1e3eff8e",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -1659,7 +1580,7 @@
 								"api",
 								"v1",
 								"appointments",
-								"68539991e00cd2254de376c4"
+								"6853d439c9cafcca1e3eff8e"
 							]
 						}
 					},

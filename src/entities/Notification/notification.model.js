@@ -4,43 +4,50 @@ const { Schema, model, Types } = mongoose;
 
 const NotificationSchema = new Schema(
   {
-    userId: {
-      type: Types.ObjectId,
-      ref: "User",
-      required: true
-    },
     type: {
       type: String,
-      enum: [
-        "NEW_MESSAGE",
-        "EMERGENCY_MESSAGE",
-        "APPOINTMENT_CREATED",
-        "APPOINTMENT_UPDATED",
-        "APPOINTMENT_CANCELLED",
-        "SESSION_ENDED",
-        "EMERGENCY_ALERT",     // ✅ NUEVO: alerta de emergencia general
-        "EMERGENCY_TAKEN"      // ✅ NUEVO: confirmación al voluntario que aceptó
-      ],
-      required: true
+      enum: ["EMERGENCY", "MESSAGE", "APPOINTMENT", "GENERAL"],
+      required: true,
     },
-    title: { 
-        type: String, 
-        required: true 
+    recipientRoles: [
+      {
+        type: String,
+        enum: ["USER", "VOLUNTEER", "ADMIN"],
+        required: true,
+      },
+    ],
+    recipients: [
+      {
+        type: Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    relatedChat: {
+      type: Types.ObjectId,
+      ref: "Chat",
+      default: null,
     },
-    body:  { 
-        type: String, 
-        required: true 
+    relatedUser: {
+      type: Types.ObjectId,
+      ref: "User",
+      required: true, // Usuario que creó o generó la notificación
     },
-    read:  { 
-        type: Boolean, 
-        default: false 
+    message: {
+      type: String,
+      required: true,
     },
-    data:  { 
-        type: Object, 
-        default: {} 
-    }
+    isRead: {
+      type: Boolean,
+      default: false,
+    },
+    isResolved: {
+      type: Boolean,
+      default: false,
+    },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
 export default model("Notification", NotificationSchema);
