@@ -3,14 +3,16 @@ import User from "../User/user.model.js";
 import { Types } from "mongoose";
 import { createAppointmentNotification } from "../Notification/notification.controller.js";
 
+// SOCKET helper
+function getIO(req) {
+  return req.app && req.app.locals && req.app.locals.io;
+}
 
 // Helper para verificar si fecha está dentro del horario disponible del voluntario
 const isWithinSchedule = (scheduledAt, schedules) => {
   if (!schedules || schedules.length === 0) return true;
-
   const date = new Date(scheduledAt);
   const day = date.toLocaleDateString("en-US", { weekday: "long" });
-
   for (const sched of schedules) {
     if (sched.day.toLowerCase() === day.toLowerCase()) {
       const [fromHour, fromMin] = sched.from.split(":").map(Number);
@@ -19,37 +21,31 @@ const isWithinSchedule = (scheduledAt, schedules) => {
       from.setHours(fromHour, fromMin, 0, 0);
       const to = new Date(date);
       to.setHours(toHour, toMin, 0, 0);
-
       if (date >= from && date <= to) return true;
     }
   }
   return false;
 };
 
-
 export const createAppointment = async (req, res) => {
   try {
     const userId = req.user.id;
     const { volunteerId, scheduledAt, reason, notes } = req.body;
 
-    // Validar voluntario
     const volunteer = await User.findById(volunteerId);
     if (!volunteer || volunteer.role !== "VOLUNTEER") {
       return res.status(404).json({ message: "Voluntario no válido o no encontrado." });
     }
 
-    // Validar fecha futura
     const scheduledDate = new Date(scheduledAt);
     if (isNaN(scheduledDate.getTime()) || scheduledDate <= new Date()) {
       return res.status(400).json({ message: "La fecha programada debe ser una fecha futura válida." });
     }
 
-    // Validar disponibilidad del voluntario
     if (!isWithinSchedule(scheduledAt, volunteer.volunteerData.schedules)) {
       return res.status(400).json({ message: "El voluntario no está disponible en ese horario." });
     }
 
-    // Evitar cita duplicada para mismo usuario, voluntario y fecha exacta
     const existing = await Appointment.findOne({
       userId,
       volunteerId,
@@ -72,61 +68,19 @@ export const createAppointment = async (req, res) => {
     // Crear notificación
     await createAppointmentNotification(appointment, "CREATED");
 
+    // -------- SOCKET.IO: Notificar a usuario y voluntario --------
+    const io = getIO(req);
+    if (io) {
+      io.to(userId.toString()).emit("appointment:new", appointment);
+      io.to(volunteerId.toString()).emit("appointment:new", appointment);
+    }
+
     return res.status(201).json({ message: "Cita creada exitosamente", appointment });
   } catch (error) {
     return res.status(500).json({ message: "Error al crear la cita", error: error.message });
   }
 };
 
-// Crear una nueva cita
-// export const createAppointment = async (req, res) => {
-//   try {
-//     const userId = req.user.id;
-//     const { volunteerId, scheduledAt, reason, notes } = req.body;
-
-//     // Validar voluntario
-//     const volunteer = await User.findById(volunteerId);
-//     if (!volunteer || volunteer.role !== "VOLUNTEER") {
-//       return res.status(404).json({ message: "Voluntario no válido o no encontrado." });
-//     }
-
-//     // Validar fecha futura
-//     const scheduledDate = new Date(scheduledAt);
-//     if (isNaN(scheduledDate.getTime()) || scheduledDate <= new Date()) {
-//       return res.status(400).json({ message: "La fecha programada debe ser una fecha futura válida." });
-//     }
-
-//     // Validar disponibilidad del voluntario
-//     if (!isWithinSchedule(scheduledAt, volunteer.volunteerData.schedules)) {
-//       return res.status(400).json({ message: "El voluntario no está disponible en ese horario." });
-//     }
-
-//     // Evitar cita duplicada para mismo usuario, voluntario y fecha exacta
-//     const existing = await Appointment.findOne({
-//       userId,
-//       volunteerId,
-//       scheduledAt: scheduledDate
-//     });
-//     if (existing) {
-//       return res.status(409).json({ message: "Ya tienes una cita agendada con este voluntario en esa fecha y hora." });
-//     }
-
-//     const appointment = new Appointment({
-//       userId,
-//       volunteerId,
-//       scheduledAt: scheduledDate,
-//       reason,
-//       notes,
-//     });
-
-//     await appointment.save();
-//     return res.status(201).json({ message: "Cita creada exitosamente", appointment });
-//   } catch (error) {
-//     return res.status(500).json({ message: "Error al crear la cita", error: error.message });
-//   }
-// };
-
-// Obtener citas con filtros avanzados y paginación
 export const getAppointments = async (req, res) => {
   try {
     const { role, id } = req.user;
@@ -157,7 +111,6 @@ export const getAppointments = async (req, res) => {
       return res.status(403).json({ message: "Rol no autorizado para esta acción" });
     }
 
-    // Filtros por status
     if (status) {
       const statuses = ["PENDING", "CONFIRMED", "CANCELLED", "COMPLETED"];
       if (!statuses.includes(status.toUpperCase())) {
@@ -166,7 +119,6 @@ export const getAppointments = async (req, res) => {
       filter.status = status.toUpperCase();
     }
 
-    // Filtros por rango de fechas
     if (fromDate || toDate) {
       filter.scheduledAt = {};
       if (fromDate) {
@@ -185,7 +137,6 @@ export const getAppointments = async (req, res) => {
       }
     }
 
-    // Buscar por userName (solo admin y voluntario)
     if (userName && (role === "ADMIN" || role === "VOLUNTEER")) {
       const usersFound = await User.find({
         "profile.displayName": { $regex: userName, $options: "i" },
@@ -220,7 +171,6 @@ export const getAppointments = async (req, res) => {
   }
 };
 
-// Obtener una cita por ID
 export const getAppointmentById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -253,7 +203,6 @@ export const getAppointmentById = async (req, res) => {
   }
 };
 
-
 export const deleteAppointment = async (req, res) => {
   try {
     const { id } = req.params;
@@ -279,6 +228,13 @@ export const deleteAppointment = async (req, res) => {
       // Crear notificación
       await createAppointmentNotification(appointment, "CANCELED");
 
+      // -------- SOCKET.IO: Notificar a usuario y voluntario --------
+      const io = getIO(req);
+      if (io) {
+        io.to(appointment.userId.toString()).emit("appointment:deleted", { appointmentId: appointment._id });
+        io.to(appointment.volunteerId.toString()).emit("appointment:deleted", { appointmentId: appointment._id });
+      }
+
       return res.json({ message: "Cita eliminada exitosamente", appointment });
     } else {
       return res.status(403).json({ message: "No tienes permiso para eliminar esta cita." });
@@ -287,38 +243,3 @@ export const deleteAppointment = async (req, res) => {
     return res.status(500).json({ message: "Error al eliminar la cita", error: error.message });
   }
 };
-
-
-// // Eliminar una cita por ID
-// export const deleteAppointment = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const { id: userId, role } = req.user;
-
-//     if (!Types.ObjectId.isValid(id)) {
-//       return res.status(400).json({ message: "ID inválido" });
-//     }
-
-//     const appointment = await Appointment.findById(id);
-//     if (!appointment) {
-//       return res.status(404).json({ message: "Cita no encontrada" });
-//     }
-
-//     // Validar permisos:
-//     // ADMIN puede eliminar cualquier cita
-//     // VOLUNTEER solo puede eliminar citas donde es voluntario
-//     // USER solo puede eliminar citas donde es usuario
-//     if (
-//       role === "ADMIN" ||
-//       (role === "VOLUNTEER" && appointment.volunteerId.toString() === userId) ||
-//       (role === "USER" && appointment.userId.toString() === userId)
-//     ) {
-//       await appointment.deleteOne();
-//       return res.json({ message: "Cita eliminada exitosamente", appointment });
-//     } else {
-//       return res.status(403).json({ message: "No tienes permiso para eliminar esta cita." });
-//     }
-//   } catch (error) {
-//     return res.status(500).json({ message: "Error al eliminar la cita", error: error.message });
-//   }
-// };

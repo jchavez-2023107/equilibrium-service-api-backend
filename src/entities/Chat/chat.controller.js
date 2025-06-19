@@ -2,7 +2,11 @@ import Chat from "./chat.model.js";
 import User from "../User/user.model.js";
 import { v4 as uuidv4 } from "uuid";
 import { createChatMessageNotification } from "../Notification/notification.controller.js";
-//import { createEmergencyAlertNotification, notifyEmergencyTaken } from "../Notification/notification.controller.js";
+
+// UTILIDAD: Obtener instancia de socket.io desde req
+function getIO(req) {
+  return req.app && req.app.locals && req.app.locals.io;
+}
 
 /**
  * createChat: Inicia un nuevo chat entre un usuario y un voluntario.
@@ -42,11 +46,17 @@ export const createChat = async (req, res, next) => {
     });
 
     await newChat.save();
-    
     await newChat.populate([
       { path: "userId", select: "_id username" },
       { path: "volunteerId", select: "_id username" }
     ]);
+
+    // -------- SOCKET.IO: Notifica a ambos usuarios que hay nuevo chat --------
+    const io = getIO(req);
+    if (io) {
+      io.to(userId.toString()).emit("chat:new", newChat);
+      io.to(volunteerId.toString()).emit("chat:new", newChat);
+    }
 
     res.status(201).json({ success: true, chat: newChat });
   } catch (err) {
@@ -102,6 +112,36 @@ export const addMessageToChat = async (req, res, next) => {
       { path: "volunteerId", select: "_id username" },
     ]);
 
+    // -------- SOCKET.IO: Notifica a ambos usuarios del nuevo mensaje --------
+    const io = getIO(req);
+    if (io) {
+      const userId = chat.userId?._id?.toString() || chat.userId.toString();
+      const volunteerId = chat.volunteerId?._id?.toString() || chat.volunteerId?.toString();
+
+      // Último mensaje (recién agregado)
+      const lastMsg = chat.messages.at(-1);
+
+      io.to(userId).emit("chat:message", {
+        chatId: chat._id,
+        message: lastMsg,
+      });
+      if (volunteerId)
+        io.to(volunteerId).emit("chat:message", {
+          chatId: chat._id,
+          message: lastMsg,
+        });
+      // Si hay emergencyTakenBy diferente al volunteerId, notifícalo también
+      if (
+        chat.emergencyTakenBy &&
+        chat.emergencyTakenBy.toString() !== volunteerId
+      ) {
+        io.to(chat.emergencyTakenBy.toString()).emit("chat:message", {
+          chatId: chat._id,
+          message: lastMsg,
+        });
+      }
+    }
+
     res.status(200).json({ success: true, chat });
   } catch (err) {
     next(err);
@@ -155,7 +195,6 @@ export const getChatById = async (req, res, next) => {
   }
 };
 
-
 /**
  * closeChat: Cierra el chat (status → ENDED).
  */
@@ -179,6 +218,7 @@ export const closeChat = async (req, res, next) => {
     }
 
     chat.status = "ENDED";
+    chat.endedAt = new Date();
     await chat.save();
 
     await chat.populate([
@@ -186,9 +226,26 @@ export const closeChat = async (req, res, next) => {
       { path: "volunteerId", select: "_id username" }
     ]);
 
+    // -------- SOCKET.IO: Notifica a ambos que el chat fue cerrado --------
+    const io = getIO(req);
+    if (io) {
+      const userId = chat.userId?._id?.toString() || chat.userId.toString();
+      const volunteerId = chat.volunteerId?._id?.toString() || chat.volunteerId?.toString();
+
+      io.to(userId).emit("chat:closed", { chatId: chat._id });
+      if (volunteerId)
+        io.to(volunteerId).emit("chat:closed", { chatId: chat._id });
+      // Si hay emergencyTakenBy diferente al volunteerId, notifícalo también
+      if (
+        chat.emergencyTakenBy &&
+        chat.emergencyTakenBy.toString() !== volunteerId
+      ) {
+        io.to(chat.emergencyTakenBy.toString()).emit("chat:closed", { chatId: chat._id });
+      }
+    }
+
     res.json({ success: true, chat });
   } catch (err) {
     next(err);
   }
 };
-

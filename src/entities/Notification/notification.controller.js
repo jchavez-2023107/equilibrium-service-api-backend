@@ -2,12 +2,18 @@ import { v4 as uuidv4 } from "uuid";
 import Notification from "./notification.model.js";
 import Chat from "../Chat/chat.model.js";
 
+// SOCKET helper
+function getIO(req) {
+  return req.app && req.app.locals && req.app.locals.io;
+}
+
 /**
  * Crear notificación de emergencia (desde botón emergencia)
  */
 export const createEmergencyNotification = async (req, res, next) => {
   try {
     const userId = req.user.id;
+    const io = getIO(req);
 
     const chat = await Chat.findOne({ userId, status: "ACTIVE" });
     if (!chat) {
@@ -32,6 +38,12 @@ export const createEmergencyNotification = async (req, res, next) => {
     });
     await notification.save();
 
+    // -------- SOCKET.IO: Notificar a todos los voluntarios conectados --------
+    if (io) {
+      // Envía a todos los sockets en la room "VOLUNTEER"
+      io.in("VOLUNTEER").emit("notification:new", notification);
+    }
+
     res.status(201).json({ success: true, notification });
   } catch (err) {
     next(err);
@@ -45,6 +57,7 @@ export const acceptEmergencyNotification = async (req, res, next) => {
   try {
     const notificationId = req.params.id;
     const volunteerId = req.user.id;
+    const io = getIO(req);
 
     const notification = await Notification.findById(notificationId);
     if (!notification) {
@@ -95,11 +108,24 @@ export const acceptEmergencyNotification = async (req, res, next) => {
     notification.isResolved = true;
     await notification.save();
 
+    // Eliminar otras notificaciones de la misma emergencia
     await Notification.deleteMany({
       _id: { $ne: notification._id },
       type: "EMERGENCY",
       relatedChat: chat._id,
     });
+
+    // -------- SOCKET.IO: Notificar a usuario y voluntario que la emergencia fue tomada --------
+    if (io) {
+      io.to(notification.relatedUser.toString()).emit("notification:emergency-taken", {
+        message: "Tu emergencia ha sido atendida.",
+        chatId: chat._id,
+      });
+      io.to(volunteerId.toString()).emit("notification:emergency-taken", {
+        message: "Has tomado la emergencia.",
+        chatId: chat._id,
+      });
+    }
 
     res.status(200).json({ success: true, message: "Emergencia aceptada.", chat });
   } catch (err) {
@@ -110,8 +136,7 @@ export const acceptEmergencyNotification = async (req, res, next) => {
 /**
  * Crear notificación de nuevo mensaje en chat normal
  */
-export const createChatMessageNotification = async (chat, senderId, messageText) => {
-  // Notifica al otro usuario en el chat que recibió un mensaje
+export const createChatMessageNotification = async (chat, senderId, messageText, req) => {
   let recipientId;
   if (chat.userId.toString() === senderId.toString()) {
     recipientId = chat.volunteerId;
@@ -119,7 +144,7 @@ export const createChatMessageNotification = async (chat, senderId, messageText)
     recipientId = chat.userId;
   }
 
-  if (!recipientId) return; // No hay destinatario (ej. chat sin voluntario asignado)
+  if (!recipientId) return;
 
   const notification = new Notification({
     type: "MESSAGE",
@@ -130,13 +155,21 @@ export const createChatMessageNotification = async (chat, senderId, messageText)
   });
 
   await notification.save();
+
+  // -------- SOCKET.IO: Notificar al destinatario --------
+  if (req) {
+    const io = getIO(req);
+    if (io) {
+      io.to(recipientId.toString()).emit("notification:new", notification);
+    }
+  }
 };
 
 /**
  * Crear notificación para citas
  * action puede ser "CREATED", "UPDATED", "CANCELED"
  */
-export const createAppointmentNotification = async (appointment, action) => {
+export const createAppointmentNotification = async (appointment, action, req) => {
   const { userId, volunteerId } = appointment;
   const messageActionMap = {
     CREATED: "creó",
@@ -153,6 +186,15 @@ export const createAppointmentNotification = async (appointment, action) => {
   });
 
   await notification.save();
+
+  // -------- SOCKET.IO: Notificar a ambos --------
+  if (req) {
+    const io = getIO(req);
+    if (io) {
+      if (userId) io.to(userId.toString()).emit("notification:new", notification);
+      if (volunteerId) io.to(volunteerId.toString()).emit("notification:new", notification);
+    }
+  }
 };
 
 /**
@@ -189,172 +231,16 @@ export const markNotificationAsRead = async (req, res, next) => {
     notification.isRead = true;
     await notification.save();
 
+    // -------- SOCKET.IO: Opcional, podrías emitir un evento si quieres actualizar la UI del usuario
+    const io = getIO(req);
+    if (io) {
+      for (const userId of notification.recipients || []) {
+        io.to(userId.toString()).emit("notification:read", { notificationId });
+      }
+    }
+
     res.status(200).json({ success: true, message: "Notificación marcada como leída." });
   } catch (err) {
     next(err);
   }
 };
-
-
-
-// import Notification from "../Notification/notification.model.js";
-// import User from "../User/user.model.js";
-// import { handleEmergencyChatAfterTake } from "../Chat/chat.controller.js";
-
-// export const createMessageNotification = async ({ chat, senderId, isEmergency }) => {
-//   const receiverId =
-//     chat.userId.toString() === senderId ? chat.volunteerId : chat.userId;
-
-//   const sender = await User.findById(senderId);
-
-//   const notification = new Notification({
-//     userId: receiverId,
-//     type: isEmergency ? "EMERGENCY_MESSAGE" : "NEW_MESSAGE",
-//     title: isEmergency ? "Mensaje de emergencia" : "Nuevo mensaje en el chat",
-//     body: `${sender.username} te ha enviado un mensaje${isEmergency ? " de emergencia" : ""}`,
-//     data: {
-//       chatId: chat._id,
-//       sessionId: chat.sessionId,
-//     },
-//   });
-
-//   await notification.save();
-// };
-
-// // Notificación general a voluntarios que aceptan emergencias
-// export const sendGeneralEmergencyNotification = async (req, res, next) => {
-//   try {
-//     const userId = req.user.id;
-
-//     const volunteers = await User.find(
-//       { role: "VOLUNTEER", "volunteerData.needs": "EMERGENCY" },
-//       "_id"
-//     );
-
-//     const notifications = volunteers.map((vol) => ({
-//       userId: vol._id,
-//       type: "EMERGENCY_MESSAGE",
-//       title: "Emergencia general",
-//       body: "Hay una nueva emergencia. Haz clic para atenderla.",
-//       data: { requesterId: userId, taken: false },
-//     }));
-
-//     await Notification.insertMany(notifications);
-
-//     res
-//       .status(200)
-//       .json({ success: true, message: "Notificaciones enviadas a voluntarios" });
-//   } catch (err) {
-//     next(err);
-//   }
-// };
-
-// // Toma de emergencia: solo un voluntario puede tomarla
-// export const takeEmergencyNotification = async (req, res, next) => {
-//   try {
-//     const volunteerId = req.user.id;
-//     const { notificationId } = req.params;
-
-//     const notification = await Notification.findOne({
-//       _id: notificationId,
-//       userId: volunteerId,
-//       type: "EMERGENCY_MESSAGE",
-//       "data.taken": false,
-//     });
-
-//     if (!notification) {
-//       return res
-//         .status(404)
-//         .json({ success: false, message: "Emergencia ya fue tomada o no existe" });
-//     }
-
-//     // Marcar como tomada
-//     notification.data.taken = true;
-//     await notification.save();
-
-//     // Eliminar la notificación de los demás voluntarios
-//     await Notification.deleteMany({
-//       type: "EMERGENCY_MESSAGE",
-//       "data.taken": false,
-//       _id: { $ne: notification._id },
-//     });
-
-//     // Crear o actualizar chat con el voluntario que tomó la emergencia
-//     await handleEmergencyChatAfterTake(notification.data.requesterId, volunteerId);
-
-//     res.status(200).json({ success: true, message: "Emergencia tomada con éxito" });
-//   } catch (err) {
-//     next(err);
-//   }
-// };
-
-// // Obtener notificaciones por usuario
-// export const getNotificationsByUser = async (req, res, next) => {
-//   try {
-//     const userId = req.user.id;
-
-//     const notifications = await Notification.find({ userId }).sort({ createdAt: -1 });
-
-//     res.json({ success: true, notifications });
-//   } catch (err) {
-//     next(err);
-//   }
-// };
-
-// // Marcar notificación como leída
-// export const markNotificationAsRead = async (req, res, next) => {
-//   try {
-//     const { id } = req.params;
-//     const userId = req.user.id;
-
-//     const notification = await Notification.findOne({ _id: id, userId });
-
-//     if (!notification) {
-//       return res
-//         .status(404)
-//         .json({ success: false, message: "Notificación no encontrada" });
-//     }
-
-//     notification.read = true;
-//     await notification.save();
-
-//     res.json({ success: true, notification });
-//   } catch (err) {
-//     next(err);
-//   }
-// };
-
-// export const createEmergencyAlertNotification = async (chat, requesterId) => {
-//   const volunteers = await User.find(
-//     { role: "VOLUNTEER", status: "ACTIVE", "volunteerData.needs": "EMERGENCY" },
-//     "_id"
-//   );
-
-//   const notifications = volunteers.map((v) => ({
-//     userId: v._id,
-//     type: "EMERGENCY_ALERT",
-//     title: "Emergencia disponible",
-//     body: "Un usuario ha reportado una emergencia. Puedes atenderla.",
-//     data: { chatId: chat._id, requesterId, taken: false },
-//   }));
-
-//   await Notification.insertMany(notifications);
-// };
-
-// export const notifyEmergencyTaken = async (chatId, volunteerId) => {
-//   await Notification.deleteMany({
-//     type: "EMERGENCY_ALERT",
-//     "data.chatId": chatId,
-//     userId: { $ne: volunteerId },
-//   });
-
-//   await Notification.create({
-//     userId: volunteerId,
-//     type: "EMERGENCY_TAKEN",
-//     title: "Has tomado la emergencia",
-//     body: "Ahora estás a cargo de esta emergencia.",
-//     data: { chatId },
-//   });
-// };
-
-
