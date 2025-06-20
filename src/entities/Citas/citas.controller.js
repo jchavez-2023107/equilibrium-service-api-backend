@@ -37,13 +37,11 @@ export const createAppointment = async (req, res) => {
       scheduledAt,
       reason,
       notes,
-      userId: bodyUserId, // ← puede venir del voluntario
+      userId: bodyUserId
     } = req.body;
 
-    // Determinar userId: si es USER usa su propio ID, si es VOLUNTEER o ADMIN toma del body
     const userId = requesterRole === "USER" ? requesterId : bodyUserId;
 
-    // Validar existencia de usuario
     const targetUser = await User.findById(userId);
     if (!targetUser || targetUser.role !== "USER") {
       return res.status(400).json({ message: "Usuario asignado no válido." });
@@ -56,33 +54,20 @@ export const createAppointment = async (req, res) => {
 
     const scheduledDate = new Date(scheduledAt);
     if (isNaN(scheduledDate.getTime()) || scheduledDate <= new Date()) {
-      return res.status(400).json({ message: "La fecha programada debe ser una fecha futura válida." });
+      return res.status(400).json({ message: "La fecha debe ser futura y válida." });
     }
 
     if (!isWithinSchedule(scheduledAt, volunteer.volunteerData.schedules)) {
       return res.status(400).json({ message: "El voluntario no está disponible en ese horario." });
     }
 
-    // Verificar duplicados exactos
-    const existing = await Appointment.findOne({
-      userId,
-      volunteerId,
-      scheduledAt: scheduledDate
-    });
+    const existing = await Appointment.findOne({ userId, volunteerId, scheduledAt: scheduledDate });
     if (existing) {
-      return res.status(409).json({ message: "Ya tienes una cita agendada con este voluntario en esa fecha y hora." });
+      return res.status(409).json({ message: "Ya existe una cita igual." });
     }
 
-    // Crear la cita
-    const appointment = new Appointment({
-      userId,
-      volunteerId,
-      scheduledAt: scheduledDate,
-      reason,
-      notes,
-    });
+    const appointment = new Appointment({ userId, volunteerId, scheduledAt: scheduledDate, reason, notes });
 
-    // --- AQUI VA LO DE LA MODIFICACIÓN, NO LO CAMBIES ---
     await appointment.save();
     await appointment.populate([
       { path: "userId", select: "username profile.displayName" },
@@ -91,9 +76,9 @@ export const createAppointment = async (req, res) => {
 
     await createAppointmentNotification(appointment, "CREATED");
 
-    // -------- SOCKET.IO: Notificar a usuario y voluntario --------
     const io = getIO(req);
     if (io) {
+      console.log("\u{1F680} Enviando socket appointment:new a:", userId, volunteerId);
       io.to(userId.toString()).emit("appointment:new", appointment);
       io.to(volunteerId.toString()).emit("appointment:new", appointment);
     }
@@ -104,6 +89,7 @@ export const createAppointment = async (req, res) => {
     return res.status(500).json({ message: "Error al crear la cita", error: error.message });
   }
 };
+
 
 export const getAppointments = async (req, res) => {
   try {

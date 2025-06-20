@@ -51,6 +51,16 @@ const io = new SocketIOServer(httpServer, {
         socket.join(userId.toString());
         console.log(`[SOCKET] Usuario conectado a sala ${userId}`);
       }
+
+        // 🎯 Extra: permite unirse manualmente a otras salas si se requiere
+        socket.on("join", (roomId) => {
+          socket.join(roomId);
+          console.log(`[SOCKET] ${socket.id} joined room ${roomId}`);
+        });
+
+        socket.on("disconnect", () => {
+          console.log(`[SOCKET] ${socket.id} desconectado`);
+        });
     });
 
     // 5. Guardar io en app.locals para acceso en controladores
