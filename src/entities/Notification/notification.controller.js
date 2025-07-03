@@ -182,7 +182,7 @@ export const createAppointmentNotification = async (appointment, action, req) =>
     type: "APPOINTMENT",
     recipients: [userId, volunteerId].filter(Boolean),
     relatedUser: userId,
-    message: `La cita ha sido ${messageAction}.`,
+    message: `La cita ha sido ${messageAction} por ${relatedUser}.`,
   });
 
   await notification.save();
@@ -205,10 +205,13 @@ export const getUserNotifications = async (req, res, next) => {
     const userId = req.user.id;
     const userRole = req.user.role;
 
-    const notifications = await Notification.find({
-      $or: [{ recipients: userId }, { recipientRoles: userRole }],
-      isResolved: false,
-    }).sort({ createdAt: -1 });
+  const notifications = await Notification.find({
+    $or: [{ recipients: userId }, { recipientRoles: userRole }],
+    isResolved: false,
+  })
+    .sort({ createdAt: -1 })
+    .populate("relatedUser", "username name"); // Puedes cambiar "username" a "name" según tu modelo
+
 
     res.status(200).json({ success: true, notifications });
   } catch (err) {
